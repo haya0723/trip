@@ -24,10 +24,11 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
+  /* display: flex; */ /* Flexbox関連のスタイルを削除 */
+  /* place-items: center; */ /* Flexbox関連のスタイルを削除 */
   min-width: 320px;
   min-height: 100vh;
+  /* 必要であれば、#root に width: 100%; を設定することも検討 */
 }
 
 h1 {

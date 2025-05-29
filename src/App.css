@@ -1,42 +1,1093 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+/* 基本的なリセットと全体スタイル */
+body {
+  font-family: sans-serif;
+  margin: 0;
+  background-color: #f4f7f6;
+  color: #333;
+}
+
+.trip-list-screen, .plan-form-screen, .trip-detail-screen, .place-search-screen, .place-detail-screen, .route-options-screen, .memory-form-screen, .memory-view-screen, .public-trips-search-screen, .public-trip-detail-screen, .hotel-recommendations-screen, .profile-edit-screen, .account-settings-screen, .auth-screen { /* .auth-screen を追加 */
+  max-width: 1200px; 
+  width: 100%; 
+  box-sizing: border-box; 
+  margin: 0 auto; 
+  padding: 20px 40px; 
+}
+
+/* ヘッダー */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 20px;
+}
+
+.app-header h1 {
+  font-size: 1.8em;
+  margin: 0;
+}
+
+.add-trip-button, .save-button, .cancel-button, .edit-plan-basics-button, .back-button, .ai-suggest-button, .search-destination-button, .copy-to-my-plans-button, .profile-button, .public-trips-search-button { 
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 1em; 
+  border-radius: 4px; 
+  cursor: pointer;
+  margin-left: 10px; 
+}
+
+.add-trip-button { 
+  font-size: 1.2em;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0; 
+}
+
+.profile-button, .public-trips-search-button { 
+  background-color: #6c757d; 
+  padding: 8px 12px;
+  font-size: 1.2em; 
+  width: 40px; 
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.cancel-button, .back-button { 
+  background-color: #5a6268; 
+}
+
+.edit-plan-basics-button {
+  background-color: #17a2b8; 
+}
+
+.ai-suggest-button {
+  background-color: #28a745; 
+  display: block; 
+  margin: 20px auto; 
+}
+
+.search-destination-button {
+  padding: 10px; 
+  font-size: 0.9em;
+}
+
+.copy-to-my-plans-button {
+  background-color: #28a745; 
+}
+
+
+/* 検索・フィルターエリア */
+.search-filter-area { 
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: center; 
+}
+.public-trips-search-screen .search-form { 
+  display: flex;
+  margin-bottom: 15px;
+}
+.public-trips-search-screen .search-form input.search-bar { 
+  flex-grow: 1;
+  margin-right: 10px;
+}
+.public-trips-search-screen .search-form button { 
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+
+.search-bar { 
+  flex-grow: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1em;
+}
+
+/* 旅行計画リスト */
+.trip-list {
+  display: grid;
+  gap: 20px;
+}
+
+/* 旅行計画カード */
+.trip-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  overflow: hidden; 
+}
+
+.trip-card-image {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+}
+
+.trip-card-image-placeholder {
+  width: 150px;
+  height: 150px;
+  background-color: #e0e0e0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #777;
+  font-size: 0.9em;
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.trip-card-content {
+  padding: 15px;
+  flex-grow: 1;
+  position: relative; 
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.trip-card-content h3 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-size: 1.3em;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.trip-card-period,
+.trip-card-destinations {
+  font-size: 0.9em;
+  color: #555;
+  margin-bottom: 5px;
 }
 
-.card {
-  padding: 2em;
+.trip-card-status {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.8em;
+  font-weight: bold;
+  margin-top: 10px;
 }
 
-.read-the-docs {
-  color: #888;
+.status-計画中 {
+  background-color: #e6f7ff;
+  color: #1890ff;
+  border: 1px solid #91d5ff;
+}
+.status-予約済み {
+  background-color: #fffbe6;
+  color: #faad14;
+  border: 1px solid #ffe58f;
+}
+.status-完了 {
+  background-color: #f6ffed;
+  color: #52c41a;
+  border: 1px solid #b7eb8f;
+}
+
+
+.trip-card-menu-button {
+  background: none;
+  border: none;
+  font-size: 1.5em;
+  color: #777;
+  cursor: pointer;
+  padding: 15px; 
+  align-self: flex-start; 
+}
+
+.view-memories-button { 
+  background-color: #ffc107; 
+  color: #212529; 
+  border: none;
+  padding: 5px 10px;
+  font-size: 0.8em;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
+  display: inline-block; 
+}
+
+
+/* 計画がない場合 */
+.empty-trip-list {
+  text-align: center;
+  padding: 40px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.empty-trip-list p {
+  font-size: 1.1em;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.add-trip-button-large {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  font-size: 1em;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* 下部ナビゲーションバー */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  background-color: #ffffff;
+  border-top: 1px solid #e0e0e0;
+  box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+  padding: 5px 0; /* 少し小さく */
+  z-index: 1000; /* 他の要素より手前に */
+}
+
+.bottom-nav .nav-item {
+  background: none;
+  border: none;
+  color: #757575; /* 通常時の色 */
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 10px;
+  font-size: 0.8em; /* ラベルのフォントサイズ */
+  flex-grow: 1; /* 各アイテムが均等に幅を取る */
+  text-align: center;
+}
+
+.bottom-nav .nav-item .nav-icon {
+  font-size: 1.5em; /* アイコンのフォントサイズ */
+  margin-bottom: 2px;
+}
+
+.bottom-nav .nav-item .nav-label {
+  display: block; /* アイコンとラベルを縦に */
+}
+
+.bottom-nav .nav-item.active {
+  color: #007bff; /* アクティブ時の色 */
+}
+
+/* 計画作成・編集画面のスタイル */
+.plan-form {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.form-section {
+  margin-bottom: 20px;
+}
+
+.form-section label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #333;
+}
+
+.form-section input[type="text"],
+.form-section input[type="date"],
+.form-section input[type="email"], /* emailタイプを追加 */
+.form-section input[type="password"], /* passwordタイプを追加 */
+.form-section textarea { 
+  width: calc(100% - 22px); 
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1em;
+  font-family: inherit; 
+}
+
+.delete-plan-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 1em;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+/* 旅行詳細画面のスタイル */
+.trip-summary {
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+.trip-summary p {
+  margin: 5px 0;
+}
+
+.date-navigation {
+  display: flex;
+  overflow-x: auto; 
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+.date-navigation button {
+  padding: 8px 12px;
+  margin-right: 10px;
+  border: 1px solid #ced4da; 
+  background-color: #e9ecef; 
+  color: #495057; 
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap; 
+}
+.date-navigation button.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.daily-schedule {
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.daily-schedule h3 {
+  margin-top: 0;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+.day-description {
+  font-weight: normal;
+  font-size: 0.9em;
+  color: #555;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 20px; 
+}
+.timeline::before { 
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: #e0e0e0;
+}
+
+.timeline-event {
+  position: relative;
+  margin-bottom: 20px;
+  padding-left: 25px; 
+}
+.timeline-event.clickable { 
+  cursor: pointer;
+}
+.timeline-event.clickable:hover {
+  background-color: #f8f9fa; 
+}
+.timeline-event::before { 
+  content: '';
+  position: absolute;
+  left: -2px; 
+  top: 5px; 
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #007bff;
+  border: 2px solid white; 
+}
+
+.timeline-event.type-meal::before { background-color: #28a745; } 
+.timeline-event.type-travel::before { background-color: #ffc107; } 
+.timeline-event.type-hotel_checkin::before, .timeline-event.type-hotel_checkout::before { background-color: #17a2b8; } 
+
+
+.timeline-time {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #333;
+}
+.timeline-content h4 {
+  margin: 0 0 5px 0;
+  font-size: 1.1em;
+}
+.event-category {
+  font-size: 0.8em;
+  color: #777;
+  font-weight: normal;
+}
+.timeline-content p {
+  margin: 0;
+  font-size: 0.9em;
+  color: #555;
+}
+.event-duration {
+  font-style: italic;
+  font-size: 0.8em !important;
+  color: #777 !important;
+  margin-top: 3px !important;
+}
+.add-memory-button, .show-hotel-recommendations-button { 
+  background-color: #6f42c1; 
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  font-size: 0.8em;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 8px;
+  margin-right: 5px; 
+}
+.show-hotel-recommendations-button {
+  background-color: #fd7e14; 
+}
+
+
+/* 場所検索画面のスタイル */
+.place-search-screen .search-form { 
+  display: flex;
+  margin-bottom: 15px;
+}
+.place-search-screen .search-form input.search-bar { 
+  flex-grow: 1;
+  margin-right: 10px;
+}
+.place-search-screen .search-form button { 
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.category-filter-area { 
+  margin-bottom: 15px;
+  display: flex; 
+  gap: 10px; 
+  flex-wrap: wrap; 
+}
+.category-filter-area button {
+  margin-right: 5px; 
+  padding: 8px 12px; 
+  border: 1px solid #ced4da; 
+  background-color: #e9ecef; 
+  color: #495057; 
+  border-radius: 4px;
+  cursor: pointer;
+}
+.category-filter-area button.active {
+  background-color: #007bff;
+  color: white;
+}
+.search-results-list .place-result-item {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+}
+.search-results-list .place-result-item:hover {
+  background-color: #f0f0f0;
+}
+.search-results-list .place-result-item h4 {
+  margin: 0 0 5px 0;
+}
+.search-results-list .place-result-item p {
+  margin: 0;
+  font-size: 0.9em;
+  color: #555;
+}
+
+/* 場所詳細画面のスタイル */
+.place-detail-screen {
+}
+.place-main-info {
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+.place-detail-image {
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+.place-detail-image-placeholder {
+  width: 100%;
+  height: 200px;
+  background-color: #e0e0e0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #777;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+.place-main-info h2 {
+  margin-top: 0;
+}
+.place-category, .place-rating, .place-address, .place-phone, .place-website {
+  font-size: 0.9em;
+  color: #555;
+  margin-bottom: 8px;
+}
+.place-website a {
+  color: #007bff;
+  text-decoration: none;
+}
+.place-website a:hover {
+  text-decoration: underline;
+}
+.place-actions {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+}
+.place-actions button {
+  flex-grow: 1;
+  padding: 10px 15px;
+  font-size: 1em;
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
+  color: white;
+}
+.add-to-list-button {
+  background-color: #28a745; 
+}
+.add-to-trip-button {
+  background-color: #17a2b8; 
+}
+.place-opening-hours, .place-reviews, .user-memo-section {
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+.place-opening-hours h4, .place-reviews h4, .user-memo-section h4 {
+  margin-top: 0;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+.place-opening-hours pre {
+  white-space: pre-wrap;
+  font-size: 0.9em;
+}
+.review-item {
+  border-bottom: 1px dashed #eee;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+.review-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+.user-memo-section textarea {
+  width: calc(100% - 22px);
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1em;
+  min-height: 60px;
+}
+
+/* 移動手段提案画面のスタイル */
+.route-options-screen .route-info {
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+.route-options-screen .route-info p {
+  margin: 5px 0;
+}
+.route-preference-filter {
+  margin-bottom: 15px;
+  display: flex; 
+  gap: 10px; 
+}
+.route-preference-filter button {
+  margin-right: 5px; 
+  padding: 8px 12px; 
+  border: 1px solid #ced4da; 
+  background-color: #e9ecef; 
+  color: #495057; 
+  border-radius: 4px;
+  cursor: pointer;
+}
+.route-preference-filter button.active { 
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+.route-options-list .route-option-item {
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 15px;
+  cursor: pointer;
+}
+.route-options-list .route-option-item:hover {
+  background-color: #f0f0f0;
+}
+.route-options-list .route-option-item h4 {
+  margin: 0 0 8px 0;
+}
+.route-options-list .route-option-item p {
+  margin: 3px 0;
+  font-size: 0.9em;
+  color: #555;
+}
+.route-options-list .route-option-item .route-details {
+  font-style: italic;
+  font-size: 0.8em;
+  color: #777;
+}
+
+/* 思い出登録画面のスタイル */
+.memory-form-screen .form-section { 
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+.media-preview-area {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+.media-thumbnail {
+  width: 100px;
+  height: 100px;
+  background-color: #e0e0e0;
+  border: 1px solid #ccc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 0.8em;
+  color: #555;
+  position: relative; 
+}
+.rating-stars span {
+  margin-right: 2px;
+}
+
+/* 思い出閲覧画面のスタイル */
+.memory-view-screen .trip-overall-summary {
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+.memory-view-screen .view-mode-toggle {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+}
+.memory-view-screen .view-mode-toggle button {
+  padding: 8px 15px;
+  border: 1px solid #ced4da;
+  background-color: #e9ecef;
+  color: #495057;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.memory-view-screen .view-mode-toggle button.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+.memory-content-area .daily-memory-section {
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+.memory-content-area .event-memory-item {
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+  margin-top: 10px;
+}
+.memory-content-area .event-memory-item:first-child {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
+}
+.memory-content-area .photos-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 5px 0;
+}
+.memory-content-area .photo-dummy, .memory-content-area .photo-dummy-gallery {
+  padding: 2px 5px;
+  background-color: #f0f0f0;
+  border-radius: 3px;
+  font-size: 0.8em;
+}
+.memory-content-area .notes {
+  font-size: 0.9em;
+  color: #333;
+  margin: 5px 0;
+}
+.memory-content-area .event-memory-item button { 
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  font-size: 0.8em;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 5px;
+}
+
+/* 公開旅程検索画面のスタイル */
+.public-trips-search-screen .filter-sort-area {
+  margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap; 
+  gap: 10px;
+  align-items: center;
+}
+.public-trips-search-screen .filter-sort-area button,
+.public-trips-search-screen .filter-sort-area select {
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  background-color: #e9ecef;
+  color: #495057;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.public-trips-search-screen .filter-sort-area select {
+  height: auto; 
+}
+
+.public-trips-list {
+  display: grid;
+  gap: 20px;
+}
+
+.public-trip-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column; 
+}
+.public-trip-card:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+.public-trip-card-image {
+  width: 100%;
+  height: 180px; 
+  object-fit: cover;
+}
+.public-trip-card-content {
+  padding: 15px;
+}
+.public-trip-card-content h3 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-size: 1.2em;
+}
+.public-trip-card-content p {
+  font-size: 0.9em;
+  color: #555;
+  margin-bottom: 5px;
+}
+.public-trip-card .tags {
+  margin-top: 10px;
+}
+.public-trip-card .tag {
+  display: inline-block;
+  background-color: #e0e0e0;
+  color: #333;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.75em;
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+
+/* 公開旅程詳細画面のスタイル */
+.public-trip-detail-screen .public-trip-summary {
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+.public-trip-detail-screen .public-trip-detail-image {
+  width: 100%;
+  max-height: 350px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+.public-trip-detail-screen .public-trip-summary h2 {
+  margin-top: 0;
+}
+.public-trip-detail-screen .public-trip-summary p {
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+.public-trip-daily-schedules {
+  margin-top: 20px;
+}
+.public-trip-daily-schedules .daily-schedule-item {
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 15px;
+}
+.public-trip-daily-schedules .daily-schedule-item h4 {
+  margin-top: 0;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+.public-trip-daily-schedules .daily-schedule-item ul {
+  list-style: none;
+  padding-left: 0;
+}
+.public-trip-daily-schedules .daily-schedule-item li {
+  padding: 5px 0;
+  border-bottom: 1px dotted #f0f0f0;
+}
+.public-trip-daily-schedules .daily-schedule-item li:last-child {
+  border-bottom: none;
+}
+.public-trip-comments {
+  margin-top: 20px;
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.public-trip-comments h3 {
+  margin-top: 0;
+}
+.public-trip-comments .comment-item {
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+.public-trip-comments .comment-item:last-child {
+  border-bottom: none;
+}
+
+/* ホテル周辺おすすめ画面のスタイル */
+.hotel-recommendations-screen .hotel-info-summary {
+  background-color: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+.hotel-recommendations-screen .recommendation-filters {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap; 
+}
+.hotel-recommendations-screen .recommendation-filters select {
+  padding: 8px 12px;
+  border: 1px solid #ced4da; 
+  background-color: #e9ecef; 
+  color: #495057; 
+  border-radius: 4px;
+}
+.recommendation-results-list .recommendation-item {
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 15px;
+  cursor: pointer;
+}
+.recommendation-results-list .recommendation-item:hover {
+  background-color: #f0f0f0;
+}
+.recommendation-results-list .recommendation-item h4 {
+  margin: 0 0 8px 0;
+}
+.recommendation-results-list .recommendation-item p {
+  margin: 3px 0;
+  font-size: 0.9em;
+  color: #555;
+}
+.show-hotel-recommendations-button { 
+  background-color: #fd7e14; 
+}
+
+/* プロフィール編集画面のスタイル */
+.profile-edit-screen .profile-form {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.profile-edit-screen .avatar-section {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.profile-edit-screen .avatar-preview {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background-color: #e0e0e0;
+  margin: 0 auto 10px auto;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.profile-edit-screen .avatar-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.profile-edit-screen .avatar-placeholder {
+  color: #777;
+  font-size: 0.9em;
+}
+.upload-avatar-button {
+  display: inline-block;
+  padding: 8px 15px;
+  background-color: #007bff;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+}
+
+/* アカウント設定画面のスタイル */
+.account-settings-screen .settings-list {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  overflow: hidden; 
+}
+.account-settings-screen .settings-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+}
+.account-settings-screen .settings-item:last-child {
+  border-bottom: none;
+}
+.account-settings-screen .settings-item:hover {
+  background-color: #f8f9fa;
+}
+.account-settings-screen .settings-item-label {
+  flex-grow: 1;
+}
+.account-settings-screen .settings-item-value {
+  color: #6c757d;
+  margin-right: 10px;
+}
+.account-settings-screen .settings-item-arrow {
+  color: #6c757d;
+  font-size: 1.2em;
+}
+.account-settings-screen .settings-item-action,
+.account-settings-screen .settings-item-danger {
+  justify-content: center; 
+  font-weight: bold;
+}
+.account-settings-screen .settings-item-action {
+  color: #007bff;
+}
+.account-settings-screen .settings-item-danger {
+  color: #dc3545;
+}
+
+/* 認証画面共通スタイル */
+.auth-screen {
+  max-width: 400px; /* 認証フォームは少し狭く */
+  margin-top: 40px;
+}
+.auth-form {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.auth-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1.1em;
+  cursor: pointer;
+  margin-top: 10px; /* 上の要素との間隔 */
+}
+.auth-button:hover {
+  background-color: #0056b3;
+}
+.auth-links {
+  margin-top: 20px;
+  text-align: center;
+}
+.auth-links .link-button {
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  padding: 5px;
+  margin: 0 5px;
+  text-decoration: underline;
+}
+.error-message {
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  text-align: center;
 }
