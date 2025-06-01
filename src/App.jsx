@@ -22,6 +22,7 @@ import AccountDeletionConfirmScreen from './components/AccountDeletionConfirmScr
 import PasswordChangeScreen from './components/PasswordChangeScreen';
 import EmailChangeScreen from './components/EmailChangeScreen';
 import MyProfileScreen from './components/MyProfileScreen';
+import FavoritePlacesScreen from './components/FavoritePlacesScreen'; // 追加
 
 const dummyDailySchedulesForTrip1 = [
   { date: '2024-08-10', dayDescription: '移動と札幌市内観光', hotel: { name: '札幌グランドホテル', address: '札幌市中央区北1条西4丁目', checkIn: '15:00', checkOut: '11:00', notes: '予約番号: XYZ123' }, events: [ { id: 'evt1-1', time: '14:00', type: 'travel', name: '新千歳空港から札幌市内へ移動', description: 'JR快速エアポート', estimatedDurationMinutes: 40, category: '移動', memory: null }, { id: 'evt1-2', time: '15:00', type: 'hotel_checkin', name: '札幌グランドホテル', description: 'チェックイン', estimatedDurationMinutes: 60, category: '宿泊', details: { address: '札幌市中央区北1条西4丁目', isHotel: true }, memory: null }, { id: 'evt1-3', time: '16:30', type: 'activity', name: '大通公園散策', description: 'テレビ塔や花時計を見る', estimatedDurationMinutes: 90, category: '観光', details: { address: '札幌市中央区大通西1～12丁目' }, memory: { notes: "楽しかった！", rating: 4, photos: ["https://via.placeholder.com/150/FF0000/FFFFFF?Text=DummyMem1"], videos: ["dummy_video.mp4"] } } , { id: 'evt1-4', time: '18:30', type: 'meal', name: '夕食：ジンギスカン', description: 'だるま 本店', estimatedDurationMinutes: 90, category: '食事', details: { address: '札幌市中央区南5条西4' }, memory: null }, ] },
@@ -308,6 +309,8 @@ function App() {
   const handleSendPasswordResetLink = (email) => { console.log('パスワードリセットメール送信要求:', email); };
   const handleConfirmCodeAndSetNewPassword = (email, code, newPassword) => { console.log('確認コードと新パスワードでパスワード更新:', { email, code, newPassword }); };
   const handleShowMyProfile = () => { setCurrentScreen('myProfile'); };
+  const handleShowFavoritePlaces = () => { setCurrentScreen('favoritePlacesList'); };
+
   const handleRequestAICourse = (hotel, params) => {
     console.log('AIコース提案リクエスト:', { hotel, params });
     // ダミーのAI提案コースデータ
@@ -377,13 +380,21 @@ function App() {
     screenComponent = <EmailChangeScreen currentEmail={currentUser?.email} onSendConfirm={handleSendEmailConfirmation} onCancel={() => setCurrentScreen('accountSettings')} />;
   }
   else if (currentScreen === 'myProfile') {
-    screenComponent = <MyProfileScreen userProfile={userProfile} onEditProfile={handleShowProfileEdit} onShowAccountSettings={handleShowAccountSettings} onLogout={handleLogout} />;
+    screenComponent = <MyProfileScreen userProfile={userProfile} onEditProfile={handleShowProfileEdit} onShowAccountSettings={handleShowAccountSettings} onLogout={handleLogout} onShowFavoritePlaces={handleShowFavoritePlaces} />; 
+  }
+  else if (currentScreen === 'favoritePlacesList') {
+    screenComponent = <FavoritePlacesScreen 
+                        favoritePlaces={userProfile.favoritePlaces} 
+                        onSelectPlace={handleShowPlaceDetail} // 場所詳細画面に遷移
+                        onRemoveFavorite={handleRemoveFavoritePlace} 
+                        onBack={handleShowMyProfile} // マイページに戻る
+                      />;
   }
   else { 
     screenComponent = <TripListScreen trips={trips} onAddNewPlan={() => handleShowPlanForm()} onEditPlan={handleShowPlanForm} onSelectTrip={handleShowTripDetail} onViewMemories={(tripId) => handleShowMemoryView(tripId)} onShowPublicTripsSearch={handleShowPublicTripsSearch} onShowProfileEdit={handleShowMyProfile} />;
   }
   
-  const screensWithoutNavBar = ['login', 'signup', 'passwordReset', 'planForm', 'memoryForm', 'profileEdit', 'placeSearch', 'routeOptions', 'eventForm', 'accountDeletionConfirm', 'passwordChange', 'emailChange', 'accountSettings'];
+  const screensWithoutNavBar = ['login', 'signup', 'passwordReset', 'planForm', 'memoryForm', 'profileEdit', 'placeSearch', 'routeOptions', 'eventForm', 'accountDeletionConfirm', 'passwordChange', 'emailChange', 'accountSettings', 'favoritePlacesList']; // favoritePlacesListもNavBarなしに
   const showNavBar = currentUser && !screensWithoutNavBar.includes(currentScreen);
 
   return (
