@@ -89,7 +89,7 @@ function DailySchedule({ schedule, trip, onSelectTravelSegment, onAddMemoryForEv
   );
 }
 
-function TripDetailScreen({ trip, onBack, onEditPlanBasics, onRequestAI, onShowRouteOptions, onAddMemoryForEvent, onShowHotelRecommendations, onAddEventToDay, onViewOverallMemories, onChangeTripStatus, onSetHotelForDay }) {
+function TripDetailScreen({ trip, onBack, onEditPlanBasics, onRequestAI, onShowRouteOptions, onAddMemoryForEvent, onShowHotelRecommendations, onAddEventToDay, onViewOverallMemories, onChangeTripStatus, onSetHotelForDay, onTogglePublicStatus, onCopyMyOwnTrip }) {
   const [selectedDate, setSelectedDate] = useState(null); 
   const [isEditingStatus, setIsEditingStatus] = useState(false);
 
@@ -106,7 +106,6 @@ function TripDetailScreen({ trip, onBack, onEditPlanBasics, onRequestAI, onShowR
   }
 
   const schedulesToDisplay = trip.schedules && trip.schedules.length > 0 ? trip.schedules : [];
-  // selectedDate が null の場合や、該当する schedule がない場合も考慮
   const currentSchedule = selectedDate ? schedulesToDisplay.find(s => s.date === selectedDate) : (schedulesToDisplay[0] || null);
 
 
@@ -122,15 +121,16 @@ function TripDetailScreen({ trip, onBack, onEditPlanBasics, onRequestAI, onShowR
       <header className="app-header">
         <h1>{trip.name}</h1>
         <div>
-          <button onClick={() => onEditPlanBasics(trip)} className="edit-plan-basics-button">基本情報編集</button>
+          {onCopyMyOwnTrip && <button onClick={() => onCopyMyOwnTrip(trip)} className="action-button" style={{marginRight: '10px'}}>この計画をコピー</button>}
+          <button onClick={() => onEditPlanBasics(trip)} className="edit-plan-basics-button" style={{marginRight: '10px'}}>基本情報編集</button>
           <button onClick={onBack} className="back-button">一覧へ戻る</button>
         </div>
       </header>
 
-      <div className="trip-summary">
+      <div className="trip-summary card-style" style={{marginBottom: '15px'}}>
         <p><strong>期間:</strong> {trip.period}</p>
         <p><strong>主な目的地:</strong> {trip.destinations}</p>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
           <p style={{ margin: 0 }}><strong>ステータス:</strong></p>
           {isEditingStatus ? (
             <select 
@@ -150,6 +150,17 @@ function TripDetailScreen({ trip, onBack, onEditPlanBasics, onRequestAI, onShowR
             <button onClick={() => setIsEditingStatus(true)} className="edit-status-button" style={{fontSize: '0.8em', padding: '4px 8px'}}>変更</button>
           )}
         </div>
+        {onTogglePublicStatus && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '10px' }}>
+            <input 
+              type="checkbox" 
+              id={`public-toggle-${trip.id}`} 
+              checked={trip.isPublic || false} 
+              onChange={() => onTogglePublicStatus(trip.id)} 
+            />
+            <label htmlFor={`public-toggle-${trip.id}`}>この旅程を公開する</label>
+          </div>
+        )}
       </div>
       
       <nav className="date-navigation">
