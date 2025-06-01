@@ -1,7 +1,7 @@
 import React from 'react';
 // import './MyProfileScreen.css'; // 必要に応じて作成
 
-function MyProfileScreen({ userProfile, onEditProfile, onShowAccountSettings, onLogout }) {
+function MyProfileScreen({ userProfile, onEditProfile, onShowAccountSettings, onLogout, onShowFavoritePlaces }) {
   if (!userProfile) {
     // ユーザープロファイルがない場合は、ローディング表示やエラーメッセージなどを表示
     // ここでは簡略化のため、何も表示しないか、ログインを促すメッセージを表示
@@ -44,7 +44,13 @@ function MyProfileScreen({ userProfile, onEditProfile, onShowAccountSettings, on
           <span className="settings-item-label">お気に入りスポット</span>
           <span className="settings-item-arrow">></span>
         </div> */}
-        <div className="settings-item" onClick={onShowAccountSettings} style={{cursor: 'pointer', padding: '15px', borderBottom: '1px solid #eee', background: 'white', borderRadius: '8px 8px 0 0', boxShadow: '0 2px 4px rgba(0,0,0,0.05)'}}>
+        {onShowFavoritePlaces && (
+          <div className="settings-item" onClick={onShowFavoritePlaces} style={{cursor: 'pointer', padding: '15px', borderBottom: '1px solid #eee', background: 'white', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', borderRadius: userProfile.isBusinessAccount ? '0' : '8px 8px 0 0' /* 条件分岐例 */}}>
+            <span className="settings-item-label">お気に入り場所リスト</span>
+            <span className="settings-item-arrow" style={{float: 'right'}}>{'>'}</span>
+          </div>
+        )}
+        <div className="settings-item" onClick={onShowAccountSettings} style={{cursor: 'pointer', padding: '15px', borderBottom: '1px solid #eee', background: 'white', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', borderRadius: !onShowFavoritePlaces ? '8px 8px 0 0' : '0'}}>
           <span className="settings-item-label">アカウント設定</span>
           <span className="settings-item-arrow" style={{float: 'right'}}>{'>'}</span>
         </div>
