@@ -191,6 +191,34 @@ function App() {
     alert(`旅程「${newPlan.name}」をマイプランにコピーしました。計画一覧で確認・編集できます。`);
     setCurrentScreen('tripList'); 
   };
+  const handleCopyMyOwnTrip = (tripToCopy) => {
+    const newSchedules = (tripToCopy.schedules || []).map(day => ({
+      ...day,
+      events: (day.events || []).map(event => {
+        const { memory, id, ...restOfEvent } = event; // 元のmemoryとidを除外
+        return {
+          ...restOfEvent,
+          id: `evt-mycopy-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, // 新しいユニークID
+          memory: null // 思い出は初期化
+        };
+      })
+    }));
+
+    const newPlan = {
+      id: Date.now(),
+      name: `コピー：${tripToCopy.name}`,
+      period: tripToCopy.period,
+      destinations: tripToCopy.destinations, // 既に文字列のはず
+      status: '計画中',
+      schedules: newSchedules,
+      overallMemory: null,
+      coverImage: tripToCopy.coverImage || null,
+      isPublic: false, // コピーした計画はデフォルトで非公開
+    };
+    setTrips(prevTrips => [...prevTrips, newPlan]);
+    alert(`旅程「${newPlan.name}」をコピーして新しい計画を作成しました。`);
+    setCurrentScreen('tripList');
+  };
   const handleShowHotelRecommendations = (hotel) => { setCurrentHotelForRecommendations(hotel); setAiRecommendedCourses([]); setCurrentScreen('hotelRecommendations'); }; // AI提案もクリア
   const handleShowProfileEdit = () => setCurrentScreen('profileEdit');
   const handleSaveProfile = (updatedProfile) => { setUserProfile(prevProfile => ({ ...prevProfile, ...updatedProfile })); setCurrentScreen('myProfile'); };
@@ -264,7 +292,7 @@ function App() {
   } else if (currentScreen === 'planForm') {
     screenComponent = <PlanFormScreen currentPlan={editingPlan} onSave={handleSavePlan} onCancel={handleCancelPlanForm} onShowPlaceSearch={handleShowPlaceSearchForPlanForm} />;
   } else if (currentScreen === 'tripDetail') {
-    screenComponent = <TripDetailScreen trip={selectedTrip} onBack={handleBackToList} onEditPlanBasics={handleShowPlanForm} onRequestAI={() => handleRequestAIForTrip(selectedTrip)} onShowRouteOptions={handleShowRouteOptions} onAddMemoryForEvent={(eventName, date) => handleShowMemoryForm(selectedTrip.id, eventName, date)} onShowHotelRecommendations={(hotel) => handleShowHotelRecommendations(hotel)} onAddEventToDay={(date) => handleShowEventForm(selectedTrip.id, date)} onViewOverallMemories={handleShowMemoryView} onChangeTripStatus={handleChangeTripStatus} onSetHotelForDay={(date) => handleSetHotelForDay(selectedTrip.id, date)} onTogglePublicStatus={handleToggleTripPublicStatus} />;
+    screenComponent = <TripDetailScreen trip={selectedTrip} onBack={handleBackToList} onEditPlanBasics={handleShowPlanForm} onRequestAI={() => handleRequestAIForTrip(selectedTrip)} onShowRouteOptions={handleShowRouteOptions} onAddMemoryForEvent={(eventName, date) => handleShowMemoryForm(selectedTrip.id, eventName, date)} onShowHotelRecommendations={(hotel) => handleShowHotelRecommendations(hotel)} onAddEventToDay={(date) => handleShowEventForm(selectedTrip.id, date)} onViewOverallMemories={handleShowMemoryView} onChangeTripStatus={handleChangeTripStatus} onSetHotelForDay={(date) => handleSetHotelForDay(selectedTrip.id, date)} onTogglePublicStatus={handleToggleTripPublicStatus} onCopyMyOwnTrip={handleCopyMyOwnTrip} />;
   } else if (currentScreen === 'placeSearch') {
     screenComponent = <PlaceSearchScreen onSelectPlace={newHandlePlaceSelected} onCancel={() => { if (placeSearchContext && placeSearchContext.returnScreen) { setCurrentScreen(placeSearchContext.returnScreen); } else if (editingPlan) { setCurrentScreen('planForm'); } else { setCurrentScreen('tripList'); } setPlaceSearchContext(null); }} />;
   } else if (currentScreen === 'placeDetail') {
