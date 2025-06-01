@@ -29,9 +29,9 @@ const dummyDailySchedulesForTrip1 = [
   { date: '2024-08-12', dayDescription: '富良野日帰り', hotel: null, events: []} 
 ];
 const initialDummyTrips = [
-  { id: 1, name: '夏の北海道旅行2024', period: '2024/08/10 - 2024/08/15 (5泊6日)', destinations: '札幌、小樽、富良野', status: '計画中', coverImage: 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?q=80&w=1000&auto=format&fit=crop', schedules: dummyDailySchedulesForTrip1, overallMemory: { notes: "全体的に素晴らしい旅行だった。", rating: 5, photos: [], videos: [] } },
-  { id: 2, name: '京都紅葉狩り', period: '2023/11/20 - 2023/11/23 (3泊4日)', destinations: '京都', status: '完了', coverImage: 'https://images.unsplash.com/photo-1534564737930-39a482142209?q=80&w=1000&auto=format&fit=crop', schedules: [], overallMemory: null },
-  { id: 3, name: '沖縄リゾート満喫', period: '2024/07/01 - 2024/07/05 (4泊5日)', destinations: '那覇、恩納村', status: '予約済み', coverImage: null, schedules: [], overallMemory: null },
+  { id: 1, name: '夏の北海道旅行2024', period: '2024/08/10 - 2024/08/15 (5泊6日)', destinations: '札幌、小樽、富良野', status: '計画中', coverImage: 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?q=80&w=1000&auto=format&fit=crop', schedules: dummyDailySchedulesForTrip1, overallMemory: { notes: "全体的に素晴らしい旅行だった。", rating: 5, photos: [], videos: [] }, isPublic: false },
+  { id: 2, name: '京都紅葉狩り', period: '2023/11/20 - 2023/11/23 (3泊4日)', destinations: '京都', status: '完了', coverImage: 'https://images.unsplash.com/photo-1534564737930-39a482142209?q=80&w=1000&auto=format&fit=crop', schedules: [], overallMemory: null, isPublic: true, publicDescription: "紅葉シーズンの京都は最高でした！特に清水寺のライトアップは必見です。", publicTags: ["紅葉", "京都", "寺社仏閣"] },
+  { id: 3, name: '沖縄リゾート満喫', period: '2024/07/01 - 2024/07/05 (4泊5日)', destinations: '那覇、恩納村', status: '予約済み', coverImage: null, schedules: [], overallMemory: null, isPublic: false },
 ];
 
 function App() {
@@ -199,6 +199,19 @@ function App() {
   const handleSignup = (signupData) => { setCurrentUser({ name: signupData.nickname, email: signupData.email }); setUserProfile(prev => ({...prev, nickname: signupData.nickname, email: signupData.email, bio: '' })); setCurrentScreen('tripList'); };
   const handleLogout = () => { setCurrentUser(null); setCurrentScreen('login'); };
   const handleChangeTripStatus = (tripId, newStatus) => { setTrips(prevTrips => prevTrips.map(trip => trip.id === tripId ? { ...trip, status: newStatus } : trip )); if (selectedTrip && selectedTrip.id === tripId) { setSelectedTrip(prevSelectedTrip => ({ ...prevSelectedTrip, status: newStatus })); } };
+  const handleToggleTripPublicStatus = (tripId) => {
+    setTrips(prevTrips => prevTrips.map(trip => 
+      trip.id === tripId ? { ...trip, isPublic: !trip.isPublic } : trip
+    ));
+    if (selectedTrip && selectedTrip.id === tripId) {
+      setSelectedTrip(prevSelectedTrip => ({ ...prevSelectedTrip, isPublic: !prevSelectedTrip.isPublic }));
+    }
+    // 公開状態が変更されたことをユーザーに通知（任意）
+    const updatedTrip = trips.find(t => t.id === tripId);
+    if (updatedTrip) {
+        alert(`旅程「${updatedTrip.name}」は現在 ${!updatedTrip.isPublic ? "公開" : "非公開"}状態です。`);
+    }
+  };
   const handleShowEventForm = (tripId, date, existingEvent = null) => { setEditingEventDetails({ tripId, date, existingEvent }); setCurrentScreen('eventForm'); };
   const handleSaveEvent = (date, eventData, existingEventToUpdate) => {
     setTrips(prevTrips => {
@@ -251,7 +264,7 @@ function App() {
   } else if (currentScreen === 'planForm') {
     screenComponent = <PlanFormScreen currentPlan={editingPlan} onSave={handleSavePlan} onCancel={handleCancelPlanForm} onShowPlaceSearch={handleShowPlaceSearchForPlanForm} />;
   } else if (currentScreen === 'tripDetail') {
-    screenComponent = <TripDetailScreen trip={selectedTrip} onBack={handleBackToList} onEditPlanBasics={handleShowPlanForm} onRequestAI={() => handleRequestAIForTrip(selectedTrip)} onShowRouteOptions={handleShowRouteOptions} onAddMemoryForEvent={(eventName, date) => handleShowMemoryForm(selectedTrip.id, eventName, date)} onShowHotelRecommendations={(hotel) => handleShowHotelRecommendations(hotel)} onAddEventToDay={(date) => handleShowEventForm(selectedTrip.id, date)} onViewOverallMemories={handleShowMemoryView} onChangeTripStatus={handleChangeTripStatus} onSetHotelForDay={(date) => handleSetHotelForDay(selectedTrip.id, date)} />;
+    screenComponent = <TripDetailScreen trip={selectedTrip} onBack={handleBackToList} onEditPlanBasics={handleShowPlanForm} onRequestAI={() => handleRequestAIForTrip(selectedTrip)} onShowRouteOptions={handleShowRouteOptions} onAddMemoryForEvent={(eventName, date) => handleShowMemoryForm(selectedTrip.id, eventName, date)} onShowHotelRecommendations={(hotel) => handleShowHotelRecommendations(hotel)} onAddEventToDay={(date) => handleShowEventForm(selectedTrip.id, date)} onViewOverallMemories={handleShowMemoryView} onChangeTripStatus={handleChangeTripStatus} onSetHotelForDay={(date) => handleSetHotelForDay(selectedTrip.id, date)} onTogglePublicStatus={handleToggleTripPublicStatus} />;
   } else if (currentScreen === 'placeSearch') {
     screenComponent = <PlaceSearchScreen onSelectPlace={newHandlePlaceSelected} onCancel={() => { if (placeSearchContext && placeSearchContext.returnScreen) { setCurrentScreen(placeSearchContext.returnScreen); } else if (editingPlan) { setCurrentScreen('planForm'); } else { setCurrentScreen('tripList'); } setPlaceSearchContext(null); }} />;
   } else if (currentScreen === 'placeDetail') {
