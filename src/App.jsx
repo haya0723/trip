@@ -17,7 +17,7 @@ import LoginScreen from './components/LoginScreen';
 import SignupScreen from './components/SignupScreen';
 import PasswordResetScreen from './components/PasswordResetScreen';
 import BottomNavBar from './components/BottomNavBar';
-import EventFormScreen from './components/EventFormScreen.jsx'; // .jsx 拡張子を再度追加
+import EventFormScreen from './components/EventFormScreen.jsx'; // .jsx 拡張子を再度追加 (CIエラー対応)
 import AccountDeletionConfirmScreen from './components/AccountDeletionConfirmScreen';
 import PasswordChangeScreen from './components/PasswordChangeScreen';
 import EmailChangeScreen from './components/EmailChangeScreen';
