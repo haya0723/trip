@@ -44,7 +44,15 @@ function App() {
   const [viewingMemoriesForTripId, setViewingMemoriesForTripId] = useState(null);
   const [selectedPublicTripDetail, setSelectedPublicTripDetail] = useState(null);
   const [currentHotelForRecommendations, setCurrentHotelForRecommendations] = useState(null);
-  const [userProfile, setUserProfile] = useState({ nickname: '旅好きユーザー', bio: '週末はいつもどこかへ旅しています！おすすめの場所があれば教えてください。', avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026704d' });
+  const [userProfile, setUserProfile] = useState({ 
+    nickname: '旅好きユーザー', 
+    bio: '週末はいつもどこかへ旅しています！おすすめの場所があれば教えてください。', 
+    avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
+    favoritePlaces: [
+      { id: 'fav1', name: '東京タワー', category: '観光', address: '東京都港区芝公園４丁目２−８' },
+      { id: 'fav2', name: '金閣寺', category: '観光', address: '京都府京都市北区金閣寺町１' },
+    ]
+  });
   const [currentUser, setCurrentUser] = useState(null);
   const [trips, setTrips] = useState(initialDummyTrips);
   const [editingEventDetails, setEditingEventDetails] = useState(null);
@@ -219,6 +227,33 @@ function App() {
     alert(`旅程「${newPlan.name}」をコピーして新しい計画を作成しました。`);
     setCurrentScreen('tripList');
   };
+
+  const handleAddFavoritePlace = (placeData) => {
+    setUserProfile(prev => {
+      // 場所IDの重複チェック (より堅牢にするなら場所IDが必須)
+      const placeId = placeData.id || placeData.name; // 仮のIDとしてnameも使用
+      if (prev.favoritePlaces.find(p => (p.id || p.name) === placeId)) {
+        alert(`${placeData.name} は既にお気に入りに追加されています。`);
+        return prev;
+      }
+      const newFavorite = { ...placeData, id: placeId }; // placeDataにidがない場合を考慮
+      return { ...prev, favoritePlaces: [...prev.favoritePlaces, newFavorite] };
+    });
+    alert(`${placeData.name} をお気に入りに追加しました。`);
+  };
+
+  const handleRemoveFavoritePlace = (placeIdOrName) => {
+    setUserProfile(prev => ({
+      ...prev,
+      favoritePlaces: prev.favoritePlaces.filter(p => (p.id || p.name) !== placeIdOrName)
+    }));
+    // 削除対象の場所名を取得するため、削除前のリストから検索（アラート用）
+    const removedPlace = userProfile.favoritePlaces.find(p => (p.id || p.name) === placeIdOrName);
+    if (removedPlace) {
+        alert(`${removedPlace.name} をお気に入りから削除しました。`);
+    }
+  };
+
   const handleShowHotelRecommendations = (hotel) => { setCurrentHotelForRecommendations(hotel); setAiRecommendedCourses([]); setCurrentScreen('hotelRecommendations'); }; // AI提案もクリア
   const handleShowProfileEdit = () => setCurrentScreen('profileEdit');
   const handleSaveProfile = (updatedProfile) => { setUserProfile(prevProfile => ({ ...prevProfile, ...updatedProfile })); setCurrentScreen('myProfile'); };
@@ -296,8 +331,17 @@ function App() {
   } else if (currentScreen === 'placeSearch') {
     screenComponent = <PlaceSearchScreen onSelectPlace={newHandlePlaceSelected} onCancel={() => { if (placeSearchContext && placeSearchContext.returnScreen) { setCurrentScreen(placeSearchContext.returnScreen); } else if (editingPlan) { setCurrentScreen('planForm'); } else { setCurrentScreen('tripList'); } setPlaceSearchContext(null); }} />;
   } else if (currentScreen === 'placeDetail') {
-    const dummyPlace = selectedPlaceDetail || { name: 'ダミー場所', address: '住所未定', category: '不明', rating: 0 };
-    screenComponent = <PlaceDetailScreen place={dummyPlace} onBack={handleBackFromPlaceDetail} onAddToList={(p) => console.log('リスト追加:', p.name)} onAddToTrip={(p) => console.log('旅程追加:', p.name)} />;
+    const dummyPlace = selectedPlaceDetail || { id: 'temp-dummy', name: 'ダミー場所', address: '住所未定', category: '不明', rating: 0 };
+    const isFavorite = userProfile.favoritePlaces.some(fp => (fp.id || fp.name) === (dummyPlace.id || dummyPlace.name));
+    screenComponent = <PlaceDetailScreen 
+                        place={dummyPlace} 
+                        onBack={handleBackFromPlaceDetail} 
+                        onAddToList={(p) => console.log('リスト追加:', p.name)} 
+                        onAddToTrip={(p) => console.log('旅程追加:', p.name)}
+                        isFavorite={isFavorite}
+                        onAddFavorite={handleAddFavoritePlace}
+                        onRemoveFavorite={handleRemoveFavoritePlace} 
+                      />;
   } else if (currentScreen === 'routeOptions') {
     screenComponent = <RouteOptionsScreen origin={currentRouteQuery?.origin} destination={currentRouteQuery?.destination} onSelectRoute={handleRouteSelected} onCancel={() => setCurrentScreen('tripDetail')} />;
   } else if (currentScreen === 'memoryForm') {
