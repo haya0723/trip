@@ -157,8 +157,40 @@ function App() {
   };
   const handleShowMemoryView = (tripId) => { setViewingMemoriesForTripId(tripId); setCurrentScreen('memoryView'); };
   const handleShowPublicTripsSearch = () => setCurrentScreen('publicTripsSearch');
-  const handleSelectPublicTrip = (publicTrip) => { setSelectedPublicTripDetail(publicTrip); setCurrentScreen('publicTripDetail'); };
-  const handleCopyToMyPlans = (publicTripData) => { const newPlan = { id: Date.now(), name: `コピー：${publicTripData.title}`, period: publicTripData.duration, destinations: publicTripData.destinations, status: '計画中', schedules: publicTripData.schedules || [], overallMemory: null }; setTrips(prevTrips => [...prevTrips, newPlan]); setCurrentScreen('tripList'); };
+  // handleSelectPublicTrip は PublicTripsSearchScreen から渡された publicTrip オブジェクト全体をセットする
+  const handleSelectPublicTrip = (publicTrip) => { 
+    setSelectedPublicTripDetail(publicTrip); // publicTrip オブジェクト全体をセット
+    setCurrentScreen('publicTripDetail'); 
+  };
+  const handleCopyToMyPlans = (publicTripData) => {
+    const newSchedules = (publicTripData.schedules || []).map(day => ({
+      ...day,
+      events: (day.events || []).map(event => {
+        // コピーするイベント情報をフィルタリング
+        const { publicPhotos, publicNotes, ...restOfEvent } = event;
+        return {
+          ...restOfEvent, // time, name, category, description, locationDetails など
+          id: `evt-copied-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, // 新しいユニークID
+          memory: null // 思い出は初期化
+        };
+      })
+    }));
+
+    const newPlan = { 
+      id: Date.now(), 
+      name: `コピー：${publicTripData.title}`, 
+      period: publicTripData.duration, 
+      destinations: Array.isArray(publicTripData.destinations) ? publicTripData.destinations.join(', ') : publicTripData.destinations, 
+      status: '計画中', 
+      schedules: newSchedules, 
+      overallMemory: null, // 旅行全体の思い出も初期化
+      coverImage: publicTripData.coverImage || null, // カバー画像は引き継ぐ
+      // 元の旅程の作者やタグ、評価などはコピーしない
+    }; 
+    setTrips(prevTrips => [...prevTrips, newPlan]); 
+    alert(`旅程「${newPlan.name}」をマイプランにコピーしました。計画一覧で確認・編集できます。`);
+    setCurrentScreen('tripList'); 
+  };
   const handleShowHotelRecommendations = (hotel) => { setCurrentHotelForRecommendations(hotel); setAiRecommendedCourses([]); setCurrentScreen('hotelRecommendations'); }; // AI提案もクリア
   const handleShowProfileEdit = () => setCurrentScreen('profileEdit');
   const handleSaveProfile = (updatedProfile) => { setUserProfile(prevProfile => ({ ...prevProfile, ...updatedProfile })); setCurrentScreen('myProfile'); };
@@ -235,7 +267,8 @@ function App() {
   } else if (currentScreen === 'publicTripsSearch') {
     screenComponent = <PublicTripsSearchScreen onSelectPublicTrip={handleSelectPublicTrip} onCancel={() => setCurrentScreen('tripList')} />;
   } else if (currentScreen === 'publicTripDetail') {
-    screenComponent = <PublicTripDetailScreen publicTripId={selectedPublicTripDetail?.id} onBack={() => setCurrentScreen('publicTripsSearch')} onCopyToMyPlans={handleCopyToMyPlans} />;
+    // selectedPublicTripDetail には旅程オブジェクト全体が入っている想定
+    screenComponent = <PublicTripDetailScreen publicTripData={selectedPublicTripDetail} onBack={() => setCurrentScreen('publicTripsSearch')} onCopyToMyPlans={handleCopyToMyPlans} />;
   } else if (currentScreen === 'hotelRecommendations') {
     screenComponent = <HotelRecommendationsScreen hotel={currentHotelForRecommendations} onBack={() => { setAiRecommendedCourses([]); setCurrentScreen(selectedTrip ? 'tripDetail' : 'tripList');}} onSelectPlace={handleShowPlaceDetail} onAICourseRequest={handleRequestAICourse} aiRecommendedCourses={aiRecommendedCourses} />;
   } else if (currentScreen === 'profileEdit') {
