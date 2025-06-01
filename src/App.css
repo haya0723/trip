@@ -6,12 +6,12 @@ body {
   color: #333;
 }
 
-.trip-list-screen, .plan-form-screen, .trip-detail-screen, .place-search-screen, .place-detail-screen, .route-options-screen, .memory-form-screen, .memory-view-screen, .public-trips-search-screen, .public-trip-detail-screen, .hotel-recommendations-screen, .profile-edit-screen, .account-settings-screen, .auth-screen { /* .auth-screen を追加 */
+.trip-list-screen, .plan-form-screen, .trip-detail-screen, .place-search-screen, .place-detail-screen, .route-options-screen, .memory-form-screen, .memory-view-screen, .public-trips-search-screen, .public-trip-detail-screen, .hotel-recommendations-screen, .profile-edit-screen, .account-settings-screen, .auth-screen { 
   max-width: 1200px; 
   width: 100%; 
   box-sizing: border-box; 
   margin: 0 auto; 
-  padding: 20px 40px; 
+  padding: 20px 40px; /* padding-bottom は App.jsx 側で動的に制御 */
 }
 
 /* ヘッダー */
@@ -41,14 +41,23 @@ body {
 }
 
 .add-trip-button { 
-  font-size: 1.2em;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0; 
+  /* アイコンボタン用のスタイルを削除またはコメントアウト */
+  /* font-size: 1.2em; */
+  /* border-radius: 50%; */
+  /* width: 40px; */
+  /* height: 40px; */
+  /* display: flex; */
+  /* justify-content: center; */
+  /* align-items: center; */
+  /* padding: 0;  */
+
+  /* 他の汎用ボタンと同様のスタイルを適用 */
+  background-color: #007bff; /* プライマリーカラー */
+  color: white;
+  padding: 10px 15px; /* 標準的なパディング */
+  font-size: 1em; /* 標準的なフォントサイズ */
+  border-radius: 4px; /* 標準的な角丸 */
+  /* margin-left は共通スタイルで適用済み */
 }
 
 .profile-button, .public-trips-search-button { 
@@ -258,8 +267,9 @@ body {
   background-color: #ffffff;
   border-top: 1px solid #e0e0e0;
   box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
-  padding: 5px 0; /* 少し小さく */
-  z-index: 1000; /* 他の要素より手前に */
+  padding: 5px 0; 
+  z-index: 1000; 
+  /* height: 60px; /* 必要に応じて高さを固定 */
 }
 
 .bottom-nav .nav-item {
@@ -311,16 +321,26 @@ body {
 
 .form-section input[type="text"],
 .form-section input[type="date"],
-.form-section input[type="email"], /* emailタイプを追加 */
-.form-section input[type="password"], /* passwordタイプを追加 */
+.form-section input[type="email"], 
+.form-section input[type="password"], 
 .form-section textarea { 
   width: calc(100% - 22px); 
   padding: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid #ced4da; /* 枠線を少し濃く */
   border-radius: 4px;
   font-size: 1em;
   font-family: inherit; 
+  background-color: #ffffff; /* 背景色を白に明示 */
+  color: #212529; /* 文字色を濃いグレーに明示 */
 }
+.form-section input:-webkit-autofill, /* ブラウザによる自動入力時のスタイル上書き */
+.form-section input:-webkit-autofill:hover, 
+.form-section input:-webkit-autofill:focus, 
+.form-section input:-webkit-autofill:active  {
+    -webkit-box-shadow: 0 0 0 30px white inset !important;
+    -webkit-text-fill-color: #212529 !important;
+}
+
 
 .delete-plan-button {
   background-color: #dc3545;
@@ -1090,4 +1110,139 @@ body {
   border-radius: 4px;
   margin-bottom: 15px;
   text-align: center;
+}
+
+/* TripDetailScreen - DailySchedule の「この日に予定を追加」ボタン */
+.add-event-to-day-button {
+  background-color: #28a745; /* 緑系の色 */
+  color: white;
+  border: none;
+  padding: 6px 10px; /* 少し小さめのパディング */
+  font-size: 0.9em;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 10px; /* 日付表示との間隔 */
+}
+.add-event-to-day-button:hover {
+  background-color: #218838;
+}
+
+/* TripDetailScreen - ステータス変更ボタン */
+.edit-status-button {
+  background-color: #6c757d; /* グレー系 */
+  color: white;
+  border: none;
+  /* padding: 4px 8px; /* TripDetailScreen側で指定済み */
+  /* font-size: 0.8em; /* TripDetailScreen側で指定済み */
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 8px; /* ステータス表示との間隔 */
+}
+.edit-status-button:hover {
+  background-color: #5a6268;
+}
+
+
+/* MemoryViewScreen のスタイル */
+.memory-view-screen .card-style { /* 共通カードスタイル */
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+
+.memory-view-screen .cover-image-memory {
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.memory-view-screen .edit-memory-button {
+  background-color: #17a2b8; /* 情報ボタンの色 */
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  font-size: 0.9em;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
+  display: inline-block;
+}
+
+.memory-view-screen .view-mode-toggle {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.memory-view-screen .view-mode-toggle button {
+  padding: 8px 15px;
+  border: 1px solid #ced4da;
+  background-color: #e9ecef;
+  color: #495057;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.memory-view-screen .view-mode-toggle button.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.memory-view-screen .daily-memory-section h4 {
+  margin-top: 0;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+.memory-view-screen .event-memory-item {
+  border-top: 1px dotted #f0f0f0;
+  padding-top: 10px;
+  margin-top: 10px;
+}
+.memory-view-screen .event-memory-item:first-child {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
+}
+.memory-view-screen .event-memory-item h5 {
+  margin: 0 0 8px 0;
+  font-size: 1.1em;
+}
+.memory-view-screen .event-category-memory {
+  font-size: 0.85em;
+  color: #6c757d;
+  font-weight: normal;
+}
+.memory-view-screen .location-memory,
+.memory-view-screen .notes-memory,
+.memory-view-screen .rating-memory {
+  font-size: 0.9em;
+  color: #333;
+  margin: 5px 0;
+}
+.memory-view-screen .media-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+.memory-view-screen .media-thumbnail-memory {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+.memory-view-screen .video-placeholder {
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #555;
+  font-size: 0.8em;
 }

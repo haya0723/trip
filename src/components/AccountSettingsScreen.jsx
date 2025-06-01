@@ -1,7 +1,7 @@
 import React from 'react';
 // import './AccountSettingsScreen.css'; // 必要に応じて作成
 
-function AccountSettingsScreen({ userEmail, onEditProfile, onChangeEmail, onChangePassword, onLogout, onDeleteAccount, onBack }) {
+function AccountSettingsScreen({ userEmail, /* onEditProfile, */ onChangeEmail, onChangePassword, onLogout, onDeleteAccount, onBack }) {
   return (
     <div className="account-settings-screen">
       <header className="app-header">
@@ -10,10 +10,13 @@ function AccountSettingsScreen({ userEmail, onEditProfile, onChangeEmail, onChan
       </header>
 
       <div className="settings-list">
+        {/* プロフィール編集への導線は MyProfileScreen に集約するため削除 */}
+        {/* 
         <div className="settings-item" onClick={onEditProfile}>
           <span className="settings-item-label">プロフィール編集</span>
           <span className="settings-item-arrow">{'>'}</span>
         </div>
+        */}
         
         <div className="settings-item" onClick={onChangeEmail}>
           <span className="settings-item-label">メールアドレス変更</span>
@@ -34,7 +37,7 @@ function AccountSettingsScreen({ userEmail, onEditProfile, onChangeEmail, onChan
         </div>
         */}
 
-        <div className="settings-item settings-item-action" onClick={onLogout}>
+        <div className="settings-item settings-item-action" onClick={onLogout} style={{marginTop: '20px'}}>
           <span>ログアウト</span>
         </div>
 

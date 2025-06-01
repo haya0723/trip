@@ -10,7 +10,7 @@ function BottomNavBar({ currentScreen, onNavigate }) {
     { key: 'tripList', label: '計画一覧', icon: '📅' },
     { key: 'publicTripsSearch', label: '探す', icon: '🔍' },
     // { key: 'notifications', label: '通知', icon: '🔔' }, // 通知画面は未作成
-    { key: 'accountSettings', label: 'アカウント', icon: '⚙️' }, 
+    { key: 'myProfile', label: 'マイページ', icon: '👤' }, // key を 'myProfile' に、label を 'マイページ' に変更
   ];
 
   return (

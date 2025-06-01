@@ -24,12 +24,16 @@ a:hover {
 
 body {
   margin: 0;
-  /* display: flex; */ /* Flexbox関連のスタイルを削除 */
-  /* place-items: center; */ /* Flexbox関連のスタイルを削除 */
   min-width: 320px;
   min-height: 100vh;
-  /* 必要であれば、#root に width: 100%; を設定することも検討 */
 }
+
+#root { 
+  min-height: 100vh;
+  display: flex; 
+  flex-direction: column; 
+}
+
 
 h1 {
   font-size: 3.2em;
@@ -66,4 +70,83 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000; /* 他の要素より手前に表示 */
+}
+
+.modal-content {
+  background-color: #ffffff; /* ライトモード: より明るい白 */
+  color: #1a1a1a; /* ライトモード: より濃い黒 */
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+@media (prefers-color-scheme: dark) {
+  .modal-content {
+    background-color: #1e1e1e; /* ダークモード: より濃いグレー/黒 */
+    color: #e0e0e0; /* ダークモード: やや明るいグレー */
+  }
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+.modal-content .form-section {
+  margin-bottom: 15px;
+}
+.modal-content .form-section label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  /* ダークモード時のラベル色を明示的に指定 */
+}
+@media (prefers-color-scheme: dark) {
+  .modal-content .form-section label {
+    color: #c0c0c0; /* やや明るいグレー */
+  }
+}
+.modal-content .form-section input[type="checkbox"] {
+  margin-right: 8px;
+  width: auto; /* チェックボックスの幅を自動に */
+}
+.modal-content .form-section select,
+.modal-content .form-section input[type="text"],
+.modal-content .form-section input[type="number"] {
+  width: calc(100% - 16px); /* paddingを考慮 */
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+@media (prefers-color-scheme: dark) {
+  .modal-content .form-section select,
+  .modal-content .form-section input[type="text"],
+  .modal-content .form-section input[type="number"] {
+    background-color: #333333; /* ダークモード入力欄背景 */
+    border-color: #555555;
+    color: #e0e0e0; /* ダークモード入力文字色 */
+  }
+}
+
+.modal-content .action-button,
+.modal-content .cancel-button {
+  padding: 10px 15px;
 }

@@ -1,68 +1,53 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 // import './MemoryViewScreen.css'; // 必要に応じて作成
 
-// ダミーの思い出データ（TripDetailScreenのdummyDailySchedulesと連携する想定）
-const dummyMemories = {
-  tripId: 1, // どの旅行計画の思い出か
-  tripName: '夏の北海道旅行2024',
-  overallImpressions: '最高の夏休みだった！特に富良野のラベンダー畑が忘れられない。',
-  overallRating: 5,
-  dailyMemories: [
-    {
-      date: '2024-08-10',
-      events: [
-        { 
-          eventName: 'ホテルチェックイン', 
-          photos: ['dummy-hotel.jpg'], 
-          notes: '広くてきれいな部屋だった。ウェルカムドリンクも美味しかった。', 
-          rating: 4 
-        },
-        { 
-          eventName: '大通公園散策', 
-          photos: ['dummy-park1.jpg', 'dummy-park2.jpg'], 
-          notes: '天気が良くて気持ちよかった。テレビ塔にも登った。', 
-          rating: 5
-        },
-      ]
-    },
-    {
-      date: '2024-08-11',
-      events: [
-        { 
-          eventName: '小樽運河クルーズ', 
-          photos: ['dummy-canal.jpg'], 
-          notes: '風が心地よく、歴史を感じるクルーズだった。', 
-          rating: 4
-        },
-      ]
-    }
-  ]
-};
 
-
-function MemoryViewScreen({ tripId, onBack, onEditMemory }) {
-  // TODO: tripId を元に実際の思い出データを取得する処理
-  const [memories, setMemories] = useState(dummyMemories); 
+function MemoryViewScreen({ tripId, tripData, onBack, onEditOverallMemory, onEditEventMemory }) {
+  // tripData は App.jsx から渡される実際の旅行データ (schedules と overallMemory を含む)
   const [viewMode, setViewMode] = useState('timeline'); // 'timeline', 'gallery', 'map'
 
-  if (!memories) {
-    return <div>思い出データがありません。<button onClick={onBack}>戻る</button></div>;
+  if (!tripData) {
+    return (
+      <div className="memory-view-screen">
+        <header className="app-header"><h1>思い出</h1><button onClick={onBack} className="back-button">戻る</button></header>
+        <p>思い出データが見つかりません。</p>
+      </div>
+    );
   }
 
   return (
     <div className="memory-view-screen">
       <header className="app-header">
-        <h1>{memories.tripName} の思い出</h1>
-        <div>
-          {/* <button onClick={() => onEditMemory(memories.tripId, null)}>旅行全体の思い出を編集</button> */}
-          <button onClick={onBack} className="back-button">戻る</button>
-        </div>
+        <h1>{tripData.name} の思い出</h1>
+        <button onClick={onBack} className="back-button">戻る</button>
       </header>
 
-      <div className="trip-overall-summary">
-        <h3>旅行全体の感想</h3>
-        <p>{memories.overallImpressions || 'まだ感想はありません。'}</p>
-        <p>総合評価: {'★'.repeat(memories.overallRating || 0)}{'☆'.repeat(5 - (memories.overallRating || 0))}</p>
+      <div className="trip-overall-summary card-style">
+        {tripData.coverImage && <img src={tripData.coverImage} alt={tripData.name} className="cover-image-memory" />}
+        <h3>旅行全体の思い出</h3>
+        {tripData.period && <p><strong>期間:</strong> {tripData.period}</p>}
+        {tripData.destinations && <p><strong>主な目的地:</strong> {tripData.destinations}</p>}
+        <p><strong>感想:</strong> {tripData.overallMemory?.notes || 'まだ感想はありません。'}</p>
+        {tripData.overallMemory?.rating > 0 && <p><strong>総合評価:</strong> {'★'.repeat(tripData.overallMemory.rating)}{'☆'.repeat(5 - tripData.overallMemory.rating)}</p>}
+        
+        {/* 旅行全体の写真表示 */}
+        {tripData.overallMemory?.photos && tripData.overallMemory.photos.length > 0 && (
+          <div className="media-grid photos-grid" style={{marginTop: '10px'}}>
+            {tripData.overallMemory.photos.map((photoUrl, idx) => (
+              <img key={`overall-photo-${idx}`} src={photoUrl} alt={`旅行全体の写真 ${idx + 1}`} className="media-thumbnail-memory" />
+            ))}
+          </div>
+        )}
+        {/* 旅行全体の動画表示 (ファイル名) */}
+        {tripData.overallMemory?.videos && tripData.overallMemory.videos.length > 0 && (
+          <div className="media-grid videos-grid" style={{marginTop: '10px'}}>
+            {tripData.overallMemory.videos.map((videoName, idx) => (
+              <div key={`overall-video-${idx}`} className="media-thumbnail-memory video-placeholder">動画: {videoName}</div>
+            ))}
+          </div>
+        )}
+
+        {onEditOverallMemory && <button onClick={() => onEditOverallMemory(tripData.id, null, null)} className="edit-memory-button" style={{marginTop: '10px'}}>全体の思い出を編集</button>}
       </div>
 
       <div className="view-mode-toggle">
@@ -73,40 +58,48 @@ function MemoryViewScreen({ tripId, onBack, onEditMemory }) {
 
       <div className="memory-content-area">
         {viewMode === 'timeline' && (
-          <div className="timeline-view">
-            {memories.dailyMemories.map(daily => (
-              <div key={daily.date} className="daily-memory-section">
-                <h4>{new Date(daily.date).toLocaleDateString('ja-JP', { month: 'short', day: 'numeric', weekday: 'short' })}</h4>
-                {daily.events.map((eventMemory, index) => (
-                  <div key={index} className="event-memory-item">
-                    <h5>{eventMemory.eventName}</h5>
-                    {eventMemory.photos && eventMemory.photos.length > 0 && (
-                      <div className="photos-preview">
-                        {eventMemory.photos.map((p, i) => <span key={i} className="photo-dummy">{p} </span>)}
-                      </div>
-                    )}
-                    <p className="notes">{eventMemory.notes}</p>
-                    <p>評価: {'★'.repeat(eventMemory.rating || 0)}{'☆'.repeat(5 - (eventMemory.rating || 0))}</p>
-                    <button onClick={() => onEditMemory(memories.tripId, eventMemory.eventName)}>この思い出を編集</button>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
+          tripData.schedules && tripData.schedules.length > 0 ? tripData.schedules.map(daily => (
+            <div key={daily.date} className="daily-memory-section card-style">
+              <h4>{new Date(daily.date).toLocaleDateString('ja-JP', { month: 'long', day: 'numeric', weekday: 'short' })} - {daily.dayDescription}</h4>
+              {daily.events && daily.events.length > 0 ? daily.events.map(event => (
+                <div key={event.id || event.name} className="event-memory-item"> {/* event.id を優先 */}
+                  <h5>{event.time} - {event.name} <span className="event-category-memory">[{event.category}]</span></h5>
+                  {event.details?.address && <p className="location-memory">場所: {event.details.name || event.name} ({event.details.address})</p>}
+                  
+                  {event.memory?.photos && event.memory.photos.length > 0 && (
+                    <div className="media-grid photos-grid">
+                      {event.memory.photos.map((photoUrl, idx) => <img key={idx} src={photoUrl} alt={`${event.name} photo ${idx+1}`} className="media-thumbnail-memory" />)}
+                    </div>
+                  )}
+                  {event.memory?.videos && event.memory.videos.length > 0 && (
+                    <div className="media-grid videos-grid">
+                      {event.memory.videos.map((videoName, idx) => (
+                        <div key={idx} className="media-thumbnail-memory video-placeholder">動画: {videoName}</div>
+                      ))}
+                    </div>
+                  )}
+                  {event.memory?.notes && <p className="notes-memory"><strong>メモ:</strong> {event.memory.notes}</p>}
+                  {event.memory?.rating && <p className="rating-memory"><strong>評価:</strong> {'★'.repeat(event.memory.rating)}{'☆'.repeat(5 - event.memory.rating)}</p>}
+                  {onEditEventMemory && <button onClick={() => onEditEventMemory(tripData.id, event.name, daily.date)} className="edit-memory-button">この予定の思い出を編集</button>}
+                </div>
+              )) : <p>この日のイベントの思い出はまだありません。</p>}
+            </div>
+          )) : <p>この旅行の思い出はまだありません。</p>
         )}
+
         {viewMode === 'gallery' && (
-          <div className="gallery-view">
-            {/* TODO: ギャラリー表示の実装 */}
-            <p>ギャラリー表示 (未実装)</p>
-            {memories.dailyMemories.flatMap(d => d.events.flatMap(e => e.photos || [])).map((photo, i) => (
-              <span key={i} className="photo-dummy-gallery">{photo} </span>
-            ))}
+          <div className="gallery-view card-style"> {/* card-styleクラスを追加 */}
+            <h4>ギャラリー表示</h4>
+            <p>(ここに写真や動画が一覧表示されます - 未実装)</p>
+            {/* TODO: フィルタリングオプションなど */}
           </div>
         )}
+
         {viewMode === 'map' && (
-          <div className="map-view">
-            {/* TODO: マップ表示の実装 */}
-            <p>マップ表示 (未実装)</p>
+          <div className="map-view card-style"> {/* card-styleクラスを追加 */}
+            <h4>マップ表示</h4>
+            <p>(ここに思い出が登録された場所が地図上に表示されます - 未実装)</p>
+            {/* TODO: マップコンポーネントの統合 */}
           </div>
         )}
       </div>

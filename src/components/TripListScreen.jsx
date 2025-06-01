@@ -11,9 +11,9 @@ function TripListScreen({ trips, onAddNewPlan, onEditPlan, onSelectTrip, onViewM
       <header className="app-header">
         <h1>旅行計画一覧</h1>
         <div> {/* 右側のボタンをグループ化 */}
-          <button className="public-trips-search-button" onClick={onShowPublicTripsSearch} title="公開旅程を探す">🌐</button> {/* 公開旅程検索ボタンを追加 */}
-          <button className="profile-button" onClick={onShowProfileEdit} title="プロフィール編集">👤</button>
-          <button className="add-trip-button" onClick={onAddNewPlan}>+</button>
+          {/* <button className="public-trips-search-button" onClick={onShowPublicTripsSearch} title="公開旅程を探す">🌐</button> */} {/* 削除 */}
+          {/* <button className="profile-button" onClick={onShowProfileEdit} title="プロフィール編集">👤</button> */} {/* 削除 */}
+          <button className="add-trip-button" onClick={onAddNewPlan}>新しい旅行を計画</button>
         </div>
       </header>
       
