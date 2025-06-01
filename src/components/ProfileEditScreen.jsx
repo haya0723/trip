@@ -1,30 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 // import './ProfileEditScreen.css'; // 必要に応じて作成
 
 function ProfileEditScreen({ userProfile, onSaveProfile, onCancel }) {
-  // userProfile には { nickname, bio, location, themes, avatarUrl } などが含まれる想定
-  const [nickname, setNickname] = useState(userProfile?.nickname || '');
-  const [bio, setBio] = useState(userProfile?.bio || '');
-  const [avatarPreview, setAvatarPreview] = useState(userProfile?.avatarUrl || null);
-  // TODO: location, themes の state も追加
+  const [nickname, setNickname] = useState('');
+  const [bio, setBio] = useState('');
+  const [avatarFile, setAvatarFile] = useState(null); // アップロード用ファイルオブジェクト
+  const [avatarPreview, setAvatarPreview] = useState(''); // 表示用URL (DataURLまたは既存URL)
+
+  useEffect(() => {
+    if (userProfile) {
+      setNickname(userProfile.nickname || '');
+      setBio(userProfile.bio || '');
+      setAvatarPreview(userProfile.avatarUrl || ''); // 初期表示は既存のURL
+      setAvatarFile(null); // 編集開始時はファイルをリセット
+    }
+  }, [userProfile]);
 
   const handleAvatarChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
+    const file = e.target.files[0];
+    if (file) {
+      setAvatarFile(file); // ファイルオブジェクトを保持
       const reader = new FileReader();
       reader.onloadend = () => {
-        setAvatarPreview(reader.result);
+        setAvatarPreview(reader.result); // DataURLをプレビューに設定
       };
-      reader.readAsDataURL(e.target.files[0]);
-      // TODO: 実際のファイルアップロード処理は別途
+      reader.readAsDataURL(file);
+    } else {
+      // ファイル選択がキャンセルされた場合、既存の画像に戻すか、クリアするか
+      // ここでは、もしuserProfileにavatarUrlがあればそれに戻す
+      setAvatarFile(null);
+      setAvatarPreview(userProfile?.avatarUrl || ''); 
     }
   };
 
   const handleSave = () => {
+    // avatarPreview には、新しい画像のDataURLか、変更がない場合は既存のavatarUrlが入っている
     onSaveProfile({
       nickname,
       bio,
-      avatarUrl: avatarPreview, // 実際にはアップロード後のURLなど
-      // location, themes なども
+      avatarUrl: avatarPreview, 
+      // avatarFile を渡してApp.jsx側でアップロード処理をする場合は別途対応
     });
   };
 
@@ -74,17 +89,6 @@ function ProfileEditScreen({ userProfile, onSaveProfile, onCancel }) {
           ></textarea>
         </div>
         
-        {/* TODO: 居住地、好きな旅行のテーマなどの入力欄 */}
-        {/* 
-        <div className="form-section">
-          <label htmlFor="location">居住地</label>
-          <input type="text" id="location" placeholder="例: 東京都" />
-        </div>
-        <div className="form-section">
-          <label>好きな旅行のテーマ</label>
-          <div>タグ入力UI (未実装)</div>
-        </div>
-        */}
       </div>
     </div>
   );

@@ -1,41 +1,54 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // useEffect をインポート
 // import './TripDetailScreen.css'; // 必要に応じて作成
 
-// ダミーの日毎スケジュールデータ
-const dummyDailySchedules = [
-  {
-    date: '2024-08-10',
-    dayDescription: '移動と札幌市内観光',
-    events: [
-      { time: '14:00', type: 'travel', name: '新千歳空港から札幌市内へ移動', description: 'JR快速エアポート', estimatedDurationMinutes: 40, category: '移動' },
-      { time: '15:00', type: 'hotel_checkin', name: '札幌グランドホテル', description: 'チェックイン', estimatedDurationMinutes: 60, category: '宿泊', details: { address: '札幌市中央区北1条西4丁目', isHotel: true } },
-      { time: '16:30', type: 'activity', name: '大通公園散策', description: 'テレビ塔や花時計を見る', estimatedDurationMinutes: 90, category: '観光', details: { address: '札幌市中央区大通西1～12丁目' } },
-      { time: '18:30', type: 'meal', name: '夕食：ジンギスカン', description: 'だるま 本店', estimatedDurationMinutes: 90, category: '食事', details: { address: '札幌市中央区南5条西4' } },
-    ],
-  },
-  {
-    date: '2024-08-11',
-    dayDescription: '小樽観光',
-    events: [
-      { time: '09:00', type: 'travel', name: '札幌から小樽へ移動', description: 'JR函館本線', estimatedDurationMinutes: 50, category: '移動' },
-      { time: '10:00', type: 'activity', name: '小樽運河クルーズ', description: '歴史的な運河を巡る', estimatedDurationMinutes: 40, category: '観光', details: { address: '小樽市港町５' } },
-      { time: '11:00', type: 'activity', name: '北一硝子・オルゴール堂散策', description: 'ガラス製品やオルゴールを見る', estimatedDurationMinutes: 120, category: '観光', details: { address: '小樽市堺町7-26' } },
-      { time: '13:30', type: 'meal', name: '昼食：海鮮丼', description: '小樽の新鮮な海の幸', estimatedDurationMinutes: 60, category: '食事', details: { address: '小樽市堺町周辺' } },
-      { time: '15:00', type: 'travel', name: '小樽から札幌へ戻る', description: 'JR函館本線', estimatedDurationMinutes: 50, category: '移動' },
-    ],
-  },
-];
+const tripStatuses = ['計画中', '予約済み', '旅行中', '完了', 'キャンセル'];
 
-function DailySchedule({ schedule, trip, onSelectTravelSegment, onAddMemoryForEvent, onShowHotelRecommendations }) {
+function DailySchedule({ schedule, trip, onSelectTravelSegment, onAddMemoryForEvent, onShowHotelRecommendations, onAddEventToDay, onRequestAI, onSetHotelForDay, currentDate }) {
   return (
     <div className="daily-schedule">
-      <h3>{schedule.date} <span className="day-description">({schedule.dayDescription})</span></h3>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+        <h3>{schedule.date} <span className="day-description">({schedule.dayDescription})</span></h3>
+        <div style={{display: 'flex', gap: '10px'}}>
+          {onRequestAI && (
+            <button 
+              onClick={() => onRequestAI(trip)} 
+              className="ai-suggest-button"
+              style={{fontSize: '0.9em', padding: '6px 10px'}}
+            >
+              AI提案
+            </button>
+          )}
+          {onAddEventToDay && ( 
+            <button 
+              className="add-event-to-day-button" 
+              onClick={() => onAddEventToDay(schedule.date)}
+            >
+              + 予定追加
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* ホテル情報表示と設定ボタン */}
+      <div className="hotel-info-section" style={{ marginBottom: '15px', padding: '10px', background: '#f9f9f9', borderRadius: '4px' }}>
+        {schedule.hotel ? (
+          <div>
+            <strong>宿泊場所:</strong> {schedule.hotel.name} ({schedule.hotel.address})
+            <button onClick={() => onSetHotelForDay(currentDate)} style={{ marginLeft: '10px', fontSize: '0.8em' }}>変更</button>
+            {schedule.hotel.checkIn && <p style={{fontSize: '0.8em', margin: '5px 0 0 0'}}>チェックイン: {schedule.hotel.checkIn} {schedule.hotel.checkOut && ` / チェックアウト: ${schedule.hotel.checkOut}`}</p>}
+            {schedule.hotel.notes && <p style={{fontSize: '0.8em', margin: '5px 0 0 0'}}>メモ: {schedule.hotel.notes}</p>}
+          </div>
+        ) : (
+          <button onClick={() => onSetHotelForDay(currentDate)}>この日の宿泊場所を設定</button>
+        )}
+      </div>
+
       <div className="timeline">
         {schedule.events.map((event, index) => (
           <div 
-            key={index} 
+            key={event.id || index} 
             className={`timeline-event type-${event.type} ${event.type === 'travel' ? 'clickable' : ''}`}
-            onClick={event.type === 'travel' ? () => {
+            onClick={event.type === 'travel' && onSelectTravelSegment ? () => {
               const originEvent = index > 0 ? schedule.events[index-1] : null;
               const destinationEvent = index < schedule.events.length - 1 ? schedule.events[index+1] : null;
               onSelectTravelSegment(originEvent, event, destinationEvent);
@@ -46,12 +59,12 @@ function DailySchedule({ schedule, trip, onSelectTravelSegment, onAddMemoryForEv
               <h4>{event.name} <span className="event-category">[{event.category}]</span></h4>
               <p>{event.description}</p>
               {event.estimatedDurationMinutes && <p className="event-duration">所要時間: 約{event.estimatedDurationMinutes}分</p>}
-              {event.type !== 'travel' && (
+              {event.type !== 'travel' && onAddMemoryForEvent && (
                 <button 
                   className="add-memory-button" 
                   onClick={(e) => { 
                     e.stopPropagation(); 
-                    onAddMemoryForEvent(event.name); // existingMemory はApp側で管理想定
+                    onAddMemoryForEvent(event.name, schedule.date); // 日付情報も渡す
                   }}
                 >
                   思い出を登録/編集
@@ -76,18 +89,33 @@ function DailySchedule({ schedule, trip, onSelectTravelSegment, onAddMemoryForEv
   );
 }
 
-function TripDetailScreen({ trip, onBack, onEditPlanBasics, onRequestAI, onShowRouteOptions, onAddMemoryForEvent, onShowHotelRecommendations }) {
-  const [selectedDate, setSelectedDate] = useState(dummyDailySchedules[0]?.date); 
+function TripDetailScreen({ trip, onBack, onEditPlanBasics, onRequestAI, onShowRouteOptions, onAddMemoryForEvent, onShowHotelRecommendations, onAddEventToDay, onViewOverallMemories, onChangeTripStatus, onSetHotelForDay }) {
+  const [selectedDate, setSelectedDate] = useState(null); 
+  const [isEditingStatus, setIsEditingStatus] = useState(false);
+
+  useEffect(() => {
+    if (trip?.schedules && trip.schedules.length > 0) {
+      setSelectedDate(trip.schedules[0].date);
+    } else {
+      setSelectedDate(null); // スケジュールがない場合はnull
+    }
+  }, [trip]);
 
   if (!trip) {
-    return <div>旅行計画が選択されていません。<button onClick={onBack}>戻る</button></div>;
+    return <div className="trip-detail-screen" style={{padding: '20px'}}><p>旅行データが見つかりません。</p><button onClick={onBack}>戻る</button></div>;
   }
 
-  // 実際のアプリケーションでは、tripオブジェクトに日毎のスケジュールが含まれる想定
-  // ここではダミーデータを使用
-  const schedulesToDisplay = trip.schedules || dummyDailySchedules;
-  const currentSchedule = schedulesToDisplay.find(s => s.date === selectedDate) || schedulesToDisplay[0];
+  const schedulesToDisplay = trip.schedules && trip.schedules.length > 0 ? trip.schedules : [];
+  // selectedDate が null の場合や、該当する schedule がない場合も考慮
+  const currentSchedule = selectedDate ? schedulesToDisplay.find(s => s.date === selectedDate) : (schedulesToDisplay[0] || null);
 
+
+  const handleStatusChange = (newStatus) => {
+    if (onChangeTripStatus) {
+      onChangeTripStatus(trip.id, newStatus);
+    }
+    setIsEditingStatus(false);
+  };
 
   return (
     <div className="trip-detail-screen">
@@ -102,13 +130,28 @@ function TripDetailScreen({ trip, onBack, onEditPlanBasics, onRequestAI, onShowR
       <div className="trip-summary">
         <p><strong>期間:</strong> {trip.period}</p>
         <p><strong>主な目的地:</strong> {trip.destinations}</p>
-        <p><strong>ステータス:</strong> {trip.status}</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <p style={{ margin: 0 }}><strong>ステータス:</strong></p>
+          {isEditingStatus ? (
+            <select 
+              value={trip.status} 
+              onChange={(e) => handleStatusChange(e.target.value)}
+              onBlur={() => setIsEditingStatus(false)}
+              autoFocus
+            >
+              {tripStatuses.map(status => (
+                <option key={status} value={status}>{status}</option>
+              ))}
+            </select>
+          ) : (
+            <p style={{ margin: 0 }}>{trip.status}</p>
+          )}
+          {!isEditingStatus && onChangeTripStatus && (
+            <button onClick={() => setIsEditingStatus(true)} className="edit-status-button" style={{fontSize: '0.8em', padding: '4px 8px'}}>変更</button>
+          )}
+        </div>
       </div>
       
-      <div className="ai-actions">
-        <button onClick={() => onRequestAI(trip)} className="ai-suggest-button">AIに旅程を提案してもらう</button>
-      </div>
-
       <nav className="date-navigation">
         {schedulesToDisplay.map(schedule => (
           <button 
@@ -116,19 +159,18 @@ function TripDetailScreen({ trip, onBack, onEditPlanBasics, onRequestAI, onShowR
             onClick={() => setSelectedDate(schedule.date)}
             className={selectedDate === schedule.date ? 'active' : ''}
           >
-            {/* 日付のフォーマットはダミーデータに合わせて調整 */}
             {schedule.date.startsWith('20') ? new Date(schedule.date).toLocaleDateString('ja-JP', { month: 'short', day: 'numeric', weekday: 'short' }) : schedule.date }
           </button>
         ))}
       </nav>
 
-      {currentSchedule && <DailySchedule 
+      {currentSchedule ? <DailySchedule 
         schedule={currentSchedule} 
-        trip={trip} // ホテル情報などを参照するために渡す
+        trip={trip}
         onSelectTravelSegment={(originEvent, travelEvent, destinationEvent) => {
           const origin = originEvent && originEvent.type !== 'travel' 
             ? { name: originEvent.name, ...(originEvent.details || {}) } 
-            : { name: trip.name + 'の出発地（仮）' };
+            : (currentSchedule.hotel || { name: trip.name + 'の出発地（仮）' }); // ホテルがあればホテルを起点に
           
           const destination = destinationEvent && destinationEvent.type !== 'travel'
             ? { name: destinationEvent.name, ...(destinationEvent.details || {}) }
@@ -138,7 +180,23 @@ function TripDetailScreen({ trip, onBack, onEditPlanBasics, onRequestAI, onShowR
         }}
         onAddMemoryForEvent={onAddMemoryForEvent}
         onShowHotelRecommendations={onShowHotelRecommendations}
-      />}
+        onAddEventToDay={onAddEventToDay} 
+        onRequestAI={onRequestAI}
+        onSetHotelForDay={onSetHotelForDay} // Propを渡す
+        currentDate={selectedDate} // 現在選択中の日付を渡す
+      /> : <p>この日のスケジュールはありません。</p>}
+
+      {onViewOverallMemories && (
+        <div style={{ marginTop: '20px', textAlign: 'center' }}>
+          <button 
+            onClick={() => onViewOverallMemories(trip.id)} 
+            className="view-memories-button"
+            style={{padding: '10px 20px', fontSize: '1em'}}
+          >
+            この旅行の思い出を見る・編集する
+          </button>
+        </div>
+      )}
     </div>
   );
 }

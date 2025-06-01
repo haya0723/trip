@@ -16,37 +16,22 @@ import AccountSettingsScreen from './components/AccountSettingsScreen';
 import LoginScreen from './components/LoginScreen';
 import SignupScreen from './components/SignupScreen';
 import PasswordResetScreen from './components/PasswordResetScreen';
-import BottomNavBar from './components/BottomNavBar'; // BottomNavBar をインポート
+import BottomNavBar from './components/BottomNavBar';
+import EventFormScreen from './components/EventFormScreen';
+import AccountDeletionConfirmScreen from './components/AccountDeletionConfirmScreen';
+import PasswordChangeScreen from './components/PasswordChangeScreen';
+import EmailChangeScreen from './components/EmailChangeScreen';
+import MyProfileScreen from './components/MyProfileScreen';
 
-// ダミーデータ (Appコンポーネントの初期stateとして使用)
+const dummyDailySchedulesForTrip1 = [
+  { date: '2024-08-10', dayDescription: '移動と札幌市内観光', hotel: { name: '札幌グランドホテル', address: '札幌市中央区北1条西4丁目', checkIn: '15:00', checkOut: '11:00', notes: '予約番号: XYZ123' }, events: [ { id: 'evt1-1', time: '14:00', type: 'travel', name: '新千歳空港から札幌市内へ移動', description: 'JR快速エアポート', estimatedDurationMinutes: 40, category: '移動', memory: null }, { id: 'evt1-2', time: '15:00', type: 'hotel_checkin', name: '札幌グランドホテル', description: 'チェックイン', estimatedDurationMinutes: 60, category: '宿泊', details: { address: '札幌市中央区北1条西4丁目', isHotel: true }, memory: null }, { id: 'evt1-3', time: '16:30', type: 'activity', name: '大通公園散策', description: 'テレビ塔や花時計を見る', estimatedDurationMinutes: 90, category: '観光', details: { address: '札幌市中央区大通西1～12丁目' }, memory: { notes: "楽しかった！", rating: 4, photos: ["https://via.placeholder.com/150/FF0000/FFFFFF?Text=DummyMem1"], videos: ["dummy_video.mp4"] } } , { id: 'evt1-4', time: '18:30', type: 'meal', name: '夕食：ジンギスカン', description: 'だるま 本店', estimatedDurationMinutes: 90, category: '食事', details: { address: '札幌市中央区南5条西4' }, memory: null }, ] },
+  { date: '2024-08-11', dayDescription: '小樽観光', hotel: { name: '札幌グランドホテル', address: '札幌市中央区北1条西4丁目', checkIn: '15:00', checkOut: '11:00', notes: '連泊' }, events: [ { id: 'evt1-5', time: '09:00', type: 'travel', name: '札幌から小樽へ移動', description: 'JR函館本線', estimatedDurationMinutes: 50, category: '移動', memory: null }, { id: 'evt1-6', time: '10:00', type: 'activity', name: '小樽運河クルーズ', description: '歴史的な運河を巡る', estimatedDurationMinutes: 40, category: '観光', details: { address: '小樽市港町５' }, memory: null }, ] },
+  { date: '2024-08-12', dayDescription: '富良野日帰り', hotel: null, events: []} 
+];
 const initialDummyTrips = [
-  {
-    id: 1,
-    name: '夏の北海道旅行2024',
-    period: '2024/08/10 - 2024/08/15 (5泊6日)',
-    destinations: '札幌、小樽、富良野',
-    status: '計画中',
-    coverImage: 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?q=80&w=1000&auto=format&fit=crop',
-    hotels: [{ name: '札幌グランドホテル', address: '札幌市中央区北1条西4丁目' }] 
-  },
-  {
-    id: 2,
-    name: '京都紅葉狩り',
-    period: '2023/11/20 - 2023/11/23 (3泊4日)',
-    destinations: '京都',
-    status: '完了',
-    coverImage: 'https://images.unsplash.com/photo-1534564737930-39a482142209?q=80&w=1000&auto=format&fit=crop',
-    hotels: [{ name: '京都ホテルオークラ', address: '京都市中京区河原町御池' }]
-  },
-  {
-    id: 3,
-    name: '沖縄リゾート満喫',
-    period: '2024/07/01 - 2024/07/05 (4泊5日)',
-    destinations: '那覇、恩納村',
-    status: '予約済み',
-    coverImage: null,
-    hotels: [{ name: 'ハイアット リージェンシー 那覇 沖縄', address: '那覇市牧志3-6-20' }]
-  },
+  { id: 1, name: '夏の北海道旅行2024', period: '2024/08/10 - 2024/08/15 (5泊6日)', destinations: '札幌、小樽、富良野', status: '計画中', coverImage: 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?q=80&w=1000&auto=format&fit=crop', schedules: dummyDailySchedulesForTrip1, overallMemory: { notes: "全体的に素晴らしい旅行だった。", rating: 5, photos: [], videos: [] } },
+  { id: 2, name: '京都紅葉狩り', period: '2023/11/20 - 2023/11/23 (3泊4日)', destinations: '京都', status: '完了', coverImage: 'https://images.unsplash.com/photo-1534564737930-39a482142209?q=80&w=1000&auto=format&fit=crop', schedules: [], overallMemory: null },
+  { id: 3, name: '沖縄リゾート満喫', period: '2024/07/01 - 2024/07/05 (4泊5日)', destinations: '那覇、恩納村', status: '予約済み', coverImage: null, schedules: [], overallMemory: null },
 ];
 
 function App() {
@@ -59,368 +44,237 @@ function App() {
   const [viewingMemoriesForTripId, setViewingMemoriesForTripId] = useState(null);
   const [selectedPublicTripDetail, setSelectedPublicTripDetail] = useState(null);
   const [currentHotelForRecommendations, setCurrentHotelForRecommendations] = useState(null);
-  const [userProfile, setUserProfile] = useState({ 
-    nickname: '旅好きユーザー',
-    bio: '週末はいつもどこかへ旅しています！おすすめの場所があれば教えてください。',
-    avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026704d', 
-  });
-  const [currentUser, setCurrentUser] = useState(null); // ログインユーザー情報
+  const [userProfile, setUserProfile] = useState({ nickname: '旅好きユーザー', bio: '週末はいつもどこかへ旅しています！おすすめの場所があれば教えてください。', avatarUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026704d' });
+  const [currentUser, setCurrentUser] = useState(null);
   const [trips, setTrips] = useState(initialDummyTrips);
+  const [editingEventDetails, setEditingEventDetails] = useState(null);
+  const [placeSearchContext, setPlaceSearchContext] = useState(null);
+  const [aiRecommendedCourses, setAiRecommendedCourses] = useState([]);
 
-  // 初期表示をログイン画面にする (currentUser がいなければ)
-  useState(() => {
-    if (!currentUser) {
-      setCurrentScreen('login');
+  React.useEffect(() => {
+    const authScreens = ['login', 'signup', 'passwordReset', 'accountDeletionConfirm'];
+    if (!currentUser && !authScreens.includes(currentScreen)) { setCurrentScreen('login'); } 
+    else if (currentUser && authScreens.includes(currentScreen) && currentScreen !== 'accountDeletionConfirm') { setCurrentScreen('tripList'); }
+  }, [currentUser, currentScreen]);
+
+  const handleShowPlanForm = (planToEdit = null) => { setCurrentScreen('planForm'); setEditingPlan(planToEdit); setSelectedTrip(null); };
+  const handleShowTripDetail = (trip) => { setSelectedTrip(trip); setCurrentScreen('tripDetail'); };
+  const handleSavePlan = (planData) => {
+    let updatedTrip;
+    if (editingPlan) { 
+      setTrips(prevTrips => prevTrips.map(t => {
+        if (t.id === editingPlan.id) { updatedTrip = { ...t, ...planData }; return updatedTrip; } return t;
+      })); 
+      if (selectedTrip && selectedTrip.id === editingPlan.id) { setSelectedTrip(updatedTrip); }
+    } else { 
+      updatedTrip = { ...planData, id: Date.now(), schedules: [], overallMemory: null }; 
+      setTrips(prevTrips => [...prevTrips, updatedTrip]); 
     }
-  }, [currentUser]);
-
-
-  const handleShowPlanForm = (planToEdit = null) => {
-    setEditingPlan(planToEdit);
-    setSelectedTrip(null);
-    setCurrentScreen('planForm');
+    setCurrentScreen('tripList'); setEditingPlan(null);
   };
-
-  const handleShowTripDetail = (trip) => {
-    setSelectedTrip(trip);
+  const handleCancelPlanForm = () => { setCurrentScreen('tripList'); setEditingPlan(null); };
+  const handleBackToList = () => { setCurrentScreen('tripList'); setSelectedTrip(null); setEditingPlan(null); setCurrentHotelForRecommendations(null); setAiRecommendedCourses([]); }; // AI提案もクリア
+  const handleRequestAIForTrip = (trip) => console.log('AIに旅程提案を依頼 (対象:', trip.name, ')');
+  const handleShowPlaceSearchGeneral = () => { setPlaceSearchContext({ returnScreen: currentScreen, from: 'general' }); setCurrentScreen('placeSearch'); };
+  const handleShowPlaceSearchForPlanForm = (callback) => { setPlaceSearchContext({ returnScreen: 'planForm', callback, from: 'planFormDestination' }); setCurrentScreen('placeSearch'); };
+  const handleShowPlaceSearchForEvent = (callbackForPlace) => { setPlaceSearchContext({ returnScreen: 'eventForm', callback: callbackForPlace, from: 'eventForm' }); setCurrentScreen('placeSearch'); };
+  const handleSetHotelForDay = (tripId, date) => { setPlaceSearchContext({ returnScreen: 'tripDetail', tripId, date, callback: handleHotelSelectedForDay, from: 'setHotelForDay' }); setCurrentScreen('placeSearch'); };
+  const handleHotelSelectedForDay = (tripId, date, hotelInfo) => {
+    setTrips(prevTrips => prevTrips.map(trip => {
+      if (trip.id === tripId) {
+        const newSchedules = (trip.schedules || []).map(schedule => {
+          if (schedule.date === date) { return { ...schedule, hotel: { name: hotelInfo.name, address: hotelInfo.address, notes: '', checkIn: '', checkOut: '' } }; }
+          return schedule;
+        });
+        const updatedTrip = { ...trip, schedules: newSchedules };
+        if (selectedTrip && selectedTrip.id === tripId) { setSelectedTrip(updatedTrip); }
+        return updatedTrip;
+      }
+      return trip;
+    }));
     setCurrentScreen('tripDetail');
   };
-
-  const handleSavePlan = (planData) => {
-    if (editingPlan) {
-      setTrips(prevTrips => prevTrips.map(t => t.id === editingPlan.id ? { ...t, ...planData } : t));
-    } else {
-      setTrips(prevTrips => [...prevTrips, { ...planData, id: Date.now(), status: '計画中' }]);
-    }
-    setCurrentScreen('tripList');
-    setEditingPlan(null);
+  const newHandlePlaceSelected = (place) => {
+    if (placeSearchContext) {
+      if (placeSearchContext.from === 'eventForm' && placeSearchContext.callback) { placeSearchContext.callback(place); setCurrentScreen('eventForm'); } 
+      else if (placeSearchContext.from === 'planFormDestination' && placeSearchContext.callback) { placeSearchContext.callback(place.name); setCurrentScreen('planForm'); } 
+      else if (placeSearchContext.from === 'setHotelForDay' && placeSearchContext.callback) { placeSearchContext.callback(placeSearchContext.tripId, placeSearchContext.date, place); } 
+      else { setSelectedPlaceDetail(place); setCurrentScreen('placeDetail'); }
+      setPlaceSearchContext(null);
+    } else { setSelectedPlaceDetail(place); setCurrentScreen('placeDetail'); }
   };
-
-  const handleCancelPlanForm = () => {
-    setCurrentScreen('tripList');
-    setEditingPlan(null);
-  };
-  
-  const handleBackToList = () => {
-    setCurrentScreen('tripList');
-    setSelectedTrip(null);
-    setEditingPlan(null);
-    setCurrentHotelForRecommendations(null); 
-  };
-  
-  const handleRequestAIForTrip = (trip) => {
-    console.log('AIに旅程提案を依頼 (対象:', trip.name, ')');
-  };
-
-  const handleShowPlaceSearch = () => {
-    setCurrentScreen('placeSearch');
-  };
-
-  const handlePlaceSelected = (place) => {
-    console.log('場所検索から選択された場所:', place);
-    setSelectedPlaceDetail(place); 
-    setCurrentScreen('placeDetail');
-  };
-  
-  const handleShowPlaceDetail = (place) => { 
-    setSelectedPlaceDetail(place);
-    setCurrentScreen('placeDetail');
-  };
-
+  const handleShowPlaceDetail = (place) => { setSelectedPlaceDetail(place); setCurrentScreen('placeDetail'); };
   const handleBackFromPlaceDetail = () => {
-    if (currentScreen === 'placeDetail' && currentHotelForRecommendations) { 
-      setCurrentScreen('hotelRecommendations');
-    } else if (currentScreen === 'placeDetail' && selectedTrip) { 
-        setCurrentScreen('tripDetail');
-    } else if (currentScreen === 'placeDetail') { 
-        setCurrentScreen('placeSearch');
+    if (placeSearchContext && placeSearchContext.returnScreen) { setCurrentScreen(placeSearchContext.returnScreen); } 
+    else if (currentHotelForRecommendations) { setCurrentScreen('hotelRecommendations'); } 
+    else if (selectedTrip) { setCurrentScreen('tripDetail'); } 
+    else { setCurrentScreen('placeSearch'); } 
+    setSelectedPlaceDetail(null); 
+  };
+  const handleShowRouteOptions = (origin, destination) => { setCurrentRouteQuery({ origin, destination }); setCurrentScreen('routeOptions'); };
+  const handleRouteSelected = (route) => { console.log('選択された移動手段:', route); setCurrentScreen('tripDetail'); setCurrentRouteQuery(null); };
+  const handleShowMemoryForm = (tripId, eventName, dateForEvent) => { 
+    const targetTrip = trips.find(t => t.id === tripId);
+    let existingMemory = null;
+    if (targetTrip) {
+      if (eventName && dateForEvent) { 
+        const schedule = targetTrip.schedules?.find(s => s.date === dateForEvent);
+        const event = schedule?.events?.find(e => e.name === eventName);
+        existingMemory = event?.memory || { photos: [], videos: [], notes: '', rating: 0 }; 
+      } else { 
+        existingMemory = targetTrip.overallMemory || { photos: [], videos: [], notes: '', rating: 0 }; 
+      }
     }
-    setSelectedPlaceDetail(null);
-  };
-
-  const handleShowRouteOptions = (origin, destination) => {
-    setCurrentRouteQuery({ origin, destination });
-    setCurrentScreen('routeOptions');
-  };
-
-  const handleRouteSelected = (route) => {
-    console.log('選択された移動手段:', route);
-    setCurrentScreen('tripDetail'); 
-    setCurrentRouteQuery(null);
-  };
-
-  const handleShowMemoryForm = (eventName, existingMemory = null) => {
-    setEditingMemoryForEvent({ eventName, existingMemory });
+    setEditingMemoryForEvent({ tripId, eventName, dateForEvent, existingMemory });
     setCurrentScreen('memoryForm');
   };
-
   const handleSaveMemory = (memoryData) => {
-    console.log('保存する思い出データ:', memoryData);
-    setCurrentScreen('tripDetail'); 
+    const { tripId, eventName, dateForEvent, notes, rating, photos, videos } = memoryData;
+    setTrips(prevTrips => prevTrips.map(trip => {
+      if (trip.id === tripId) {
+        let updatedTrip = { ...trip };
+        if (eventName) { 
+          updatedTrip.schedules = (updatedTrip.schedules || []).map(schedule => {
+            if (schedule.date === dateForEvent) {
+              return { ...schedule, events: (schedule.events || []).map(event => {
+                  if (event.name === eventName) { return { ...event, memory: { notes, rating, photos, videos } }; }
+                  return event;
+                })
+              };
+            }
+            return schedule;
+          });
+        } else { 
+          updatedTrip.overallMemory = { notes, rating, photos, videos };
+        }
+        if (selectedTrip && selectedTrip.id === tripId) { setSelectedTrip(updatedTrip); }
+        return updatedTrip;
+      }
+      return trip;
+    }));
+    setCurrentScreen('memoryView'); 
     setEditingMemoryForEvent(null);
   };
-
-  const handleShowMemoryView = (tripId) => {
-    setViewingMemoriesForTripId(tripId);
-    setCurrentScreen('memoryView');
+  const handleShowMemoryView = (tripId) => { setViewingMemoriesForTripId(tripId); setCurrentScreen('memoryView'); };
+  const handleShowPublicTripsSearch = () => setCurrentScreen('publicTripsSearch');
+  const handleSelectPublicTrip = (publicTrip) => { setSelectedPublicTripDetail(publicTrip); setCurrentScreen('publicTripDetail'); };
+  const handleCopyToMyPlans = (publicTripData) => { const newPlan = { id: Date.now(), name: `コピー：${publicTripData.title}`, period: publicTripData.duration, destinations: publicTripData.destinations, status: '計画中', schedules: publicTripData.schedules || [], overallMemory: null }; setTrips(prevTrips => [...prevTrips, newPlan]); setCurrentScreen('tripList'); };
+  const handleShowHotelRecommendations = (hotel) => { setCurrentHotelForRecommendations(hotel); setAiRecommendedCourses([]); setCurrentScreen('hotelRecommendations'); }; // AI提案もクリア
+  const handleShowProfileEdit = () => setCurrentScreen('profileEdit');
+  const handleSaveProfile = (updatedProfile) => { setUserProfile(prevProfile => ({ ...prevProfile, ...updatedProfile })); setCurrentScreen('myProfile'); };
+  const handleShowAccountSettings = () => setCurrentScreen('accountSettings');
+  const handleLogin = (userData) => { setCurrentUser({name: userData.name, email: userData.email}); setUserProfile(prev => ({...prev, nickname: userData.name, email: userData.email})); setCurrentScreen('tripList'); };
+  const handleSignup = (signupData) => { setCurrentUser({ name: signupData.nickname, email: signupData.email }); setUserProfile(prev => ({...prev, nickname: signupData.nickname, email: signupData.email, bio: '' })); setCurrentScreen('tripList'); };
+  const handleLogout = () => { setCurrentUser(null); setCurrentScreen('login'); };
+  const handleChangeTripStatus = (tripId, newStatus) => { setTrips(prevTrips => prevTrips.map(trip => trip.id === tripId ? { ...trip, status: newStatus } : trip )); if (selectedTrip && selectedTrip.id === tripId) { setSelectedTrip(prevSelectedTrip => ({ ...prevSelectedTrip, status: newStatus })); } };
+  const handleShowEventForm = (tripId, date, existingEvent = null) => { setEditingEventDetails({ tripId, date, existingEvent }); setCurrentScreen('eventForm'); };
+  const handleSaveEvent = (date, eventData, existingEventToUpdate) => {
+    setTrips(prevTrips => {
+      return prevTrips.map(trip => {
+        if (trip.id === editingEventDetails.tripId) {
+          let newSchedules = [...(trip.schedules || [])];
+          let scheduleForDate = newSchedules.find(s => s.date === date);
+          let scheduleWasFound = !!scheduleForDate;
+          if (!scheduleForDate) { scheduleForDate = { date: date, dayDescription: '', events: [] }; } 
+          else { scheduleForDate = { ...scheduleForDate, events: [...(scheduleForDate.events || [])] }; }
+          if (existingEventToUpdate && existingEventToUpdate.id) { scheduleForDate.events = scheduleForDate.events.map(e => e.id === existingEventToUpdate.id ? { ...e, ...eventData, id: existingEventToUpdate.id } : e ); } 
+          else { scheduleForDate.events.push({ ...eventData, id: Date.now() }); }
+          scheduleForDate.events.sort((a, b) => (a.time || "00:00").localeCompare(b.time || "00:00"));
+          if (!scheduleWasFound) { newSchedules.push(scheduleForDate); newSchedules.sort((a, b) => new Date(a.date) - new Date(b.date)); } 
+          else { newSchedules = newSchedules.map(s => s.date === date ? scheduleForDate : s); }
+          const updatedTrip = { ...trip, schedules: newSchedules };
+          if (selectedTrip && selectedTrip.id === trip.id) { setSelectedTrip(updatedTrip); }
+          return updatedTrip;
+        }
+        return trip;
+      });
+    });
+    setCurrentScreen('tripDetail'); setEditingEventDetails(null);
   };
-
-  const handleShowPublicTripsSearch = () => {
-    setCurrentScreen('publicTripsSearch');
+  const handleDeleteAccountRequest = () => setCurrentScreen('accountDeletionConfirm');
+  const handleConfirmAccountDeletion = (password) => { console.log('アカウント削除実行'); handleLogout(); };
+  const handleChangePasswordRequest = () => { setCurrentScreen('passwordChange'); };
+  const handleConfirmPasswordChange = (currentPassword, newPassword) => { console.log('パスワード変更実行'); setCurrentScreen('accountSettings'); };
+  const handleChangeEmailRequest = () => { setCurrentScreen('emailChange'); };
+  const handleSendEmailConfirmation = (currentPassword, newEmail) => { alert(`新しいメールアドレス ${newEmail} に確認メールを送信しました。（ダミー処理）`); setCurrentScreen('accountSettings'); };
+  const handleSendPasswordResetLink = (email) => { console.log('パスワードリセットメール送信要求:', email); };
+  const handleConfirmCodeAndSetNewPassword = (email, code, newPassword) => { console.log('確認コードと新パスワードでパスワード更新:', { email, code, newPassword }); };
+  const handleShowMyProfile = () => { setCurrentScreen('myProfile'); };
+  const handleRequestAICourse = (hotel, params) => {
+    console.log('AIコース提案リクエスト:', { hotel, params });
+    // ダミーのAI提案コースデータ
+    const dummyCourses = [
+      { id: 'course1', name: `${params.categories.join(', ')}巡り (${params.duration}時間コース)`, duration: `${params.duration}時間`, spots: [ {name: 'ダミースポットA (ホテル近く)', time: '30分'}, {name: 'ダミースポットB', time: '60分'} ], transport: '徒歩とバス', totalTime: `${params.duration}時間`},
+      { id: 'course2', name: `のんびり${params.categories[0] || 'お散歩'}コース`, duration: `${params.duration}時間`, spots: [ {name: 'ダミー公園', time: '90分'}, {name: '眺めの良いカフェ', time: '45分'} ], transport: '徒歩', totalTime: `${params.duration}時間`},
+    ];
+    setAiRecommendedCourses(dummyCourses);
+    // setCurrentScreen('hotelRecommendations'); // 既にその画面のはず
   };
-
-  const handleSelectPublicTrip = (publicTrip) => {
-    console.log('選択された公開旅程:', publicTrip);
-    setSelectedPublicTripDetail(publicTrip); 
-    setCurrentScreen('publicTripDetail');
-  };
-
-  const handleCopyToMyPlans = (publicTripData) => {
-    console.log('自分の計画にコピー:', publicTripData);
-    const newPlan = {
-      id: Date.now(),
-      name: `コピー：${publicTripData.title}`,
-      period: publicTripData.duration, 
-      destinations: publicTripData.destinations,
-      status: '計画中',
-    };
-    setTrips(prevTrips => [...prevTrips, newPlan]);
-    setCurrentScreen('tripList');
-  };
-
-  const handleShowHotelRecommendations = (hotel) => {
-    setCurrentHotelForRecommendations(hotel);
-    setCurrentScreen('hotelRecommendations');
-  };
-
-  const handleShowProfileEdit = () => {
-    setCurrentScreen('profileEdit');
-  };
-
-  const handleSaveProfile = (updatedProfile) => {
-    console.log('保存するプロフィール:', updatedProfile);
-    setUserProfile(prevProfile => ({ ...prevProfile, ...updatedProfile }));
-    setCurrentScreen('accountSettings'); 
-  };
-
-  const handleShowAccountSettings = () => {
-    setCurrentScreen('accountSettings');
-  };
-
-  const handleLogin = (userData) => {
-    console.log('ログイン成功:', userData);
-    setCurrentUser(userData);
-    setUserProfile(prev => ({...prev, ...userData, email: userData.email})); 
-    setCurrentScreen('tripList'); 
-  };
-
-  const handleSignup = (signupData) => {
-    console.log('新規登録成功:', signupData);
-    // ダミーでログイン処理も実行
-    setCurrentUser({ name: signupData.nickname, email: signupData.email });
-    setUserProfile(prev => ({...prev, ...signupData}));
-    setCurrentScreen('tripList'); // 新規登録後は旅行一覧へ
-  };
-
-  const handleLogout = () => {
-    console.log('ログアウト');
-    setCurrentUser(null);
-    setCurrentScreen('login'); // ログアウト後はログイン画面へ
-  };
-
-
-  if (!currentUser && currentScreen !== 'signup' && currentScreen !== 'passwordReset') { 
-    if (currentScreen === 'login') { 
-      return <LoginScreen 
-               onLogin={handleLogin} 
-               onNavigateToSignup={() => setCurrentScreen('signup')} 
-               onForgotPassword={() => setCurrentScreen('passwordReset')} 
-             />;
-    }
-    // signup, passwordReset 以外の未ログイン状態は login へ (useEffectで初期表示は制御されるが、念のため)
-    // setCurrentScreen('login'); // ここで直接setCurrentScreenを呼ぶと無限ループの可能性
-    // このブロックは、初期表示以外の予期せぬ画面遷移を防ぐガードとして機能させる
-    // 実際にはuseEffectで初期表示がloginに設定される
-    return <LoginScreen 
-             onLogin={handleLogin} 
-             onNavigateToSignup={() => setCurrentScreen('signup')} 
-             onForgotPassword={() => setCurrentScreen('passwordReset')} 
-           />;
-  }
-
-
-  if (currentScreen === 'planForm') {
-    return <PlanFormScreen currentPlan={editingPlan} onSave={handleSavePlan} onCancel={handleCancelPlanForm} onShowPlaceSearch={handleShowPlaceSearch} />;
-  }
-  if (currentScreen === 'tripDetail') {
-    return <TripDetailScreen trip={selectedTrip} onBack={handleBackToList} onEditPlanBasics={handleShowPlanForm} 
-             onRequestAI={() => handleRequestAIForTrip(selectedTrip)}
-             onShowRouteOptions={handleShowRouteOptions}
-             onAddMemoryForEvent={(eventName) => handleShowMemoryForm(eventName)} 
-             onShowHotelRecommendations={(hotel) => handleShowHotelRecommendations(hotel)} />;
-  }
-  if (currentScreen === 'placeSearch') {
-    return <PlaceSearchScreen onSelectPlace={handlePlaceSelected} onCancel={() => setCurrentScreen(editingPlan ? 'planForm' : 'tripList')} />;
-  }
-  if (currentScreen === 'placeDetail') {
-    const dummyPlaceForDetail = selectedPlaceDetail || { 
-      name: 'ダミーの場所詳細', address: '東京都サンプル区1-2-3', category: '観光', rating: 4.5, 
-      photos: ['https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?q=80&w=1000&auto=format&fit=crop'],
-      openingHours: "月-金: 9:00-18:00\n土: 10:00-17:00\n日: 定休日",
-      reviews: [{author_name: "テストユーザー", rating: 5, text: "素晴らしい場所でした！"}]
-    };
-    return <PlaceDetailScreen place={dummyPlaceForDetail} onBack={handleBackFromPlaceDetail}
-             onAddToList={(place) => console.log('リストに追加:', place.name)}
-             onAddToTrip={(place) => console.log('旅程に追加:', place.name)} />;
-  }
-  if (currentScreen === 'routeOptions') {
-    return <RouteOptionsScreen origin={currentRouteQuery?.origin} destination={currentRouteQuery?.destination}
-            onSelectRoute={handleRouteSelected} onCancel={() => setCurrentScreen('tripDetail')} />;
-  }
-  if (currentScreen === 'memoryForm') {
-    return <MemoryFormScreen eventName={editingMemoryForEvent?.eventName} existingMemory={editingMemoryForEvent?.existingMemory}
-            onSaveMemory={handleSaveMemory} onCancel={() => setCurrentScreen('tripDetail')} />;
-  }
-  if (currentScreen === 'memoryView') {
-    return <MemoryViewScreen tripId={viewingMemoriesForTripId}
-            onBack={() => setCurrentScreen(selectedTrip ? 'tripDetail' : 'tripList')}
-            onEditMemory={(tripId, eventName) => {
-              const targetTrip = trips.find(t => t.id === tripId);
-              handleShowMemoryForm(eventName || `${targetTrip?.name} 全体の思い出`, null);
-            }} />;
-  }
-  if (currentScreen === 'publicTripsSearch') {
-    return <PublicTripsSearchScreen onSelectPublicTrip={handleSelectPublicTrip} onCancel={() => setCurrentScreen('tripList')} />;
-  }
-  if (currentScreen === 'publicTripDetail') {
-    return <PublicTripDetailScreen publicTripId={selectedPublicTripDetail?.id} 
-            onBack={() => setCurrentScreen('publicTripsSearch')} onCopyToMyPlans={handleCopyToMyPlans} />;
-  }
-  if (currentScreen === 'hotelRecommendations') {
-    return <HotelRecommendationsScreen hotel={currentHotelForRecommendations} 
-            onBack={() => setCurrentScreen(selectedTrip ? 'tripDetail' : 'tripList')} 
-            onSelectPlace={handleShowPlaceDetail} />;
-  }
-  if (currentScreen === 'profileEdit') {
-    return <ProfileEditScreen userProfile={userProfile} onSaveProfile={handleSaveProfile} 
-            onCancel={() => setCurrentScreen('accountSettings')} />; // アカウント設定画面に戻る
-  }
-  if (currentScreen === 'accountSettings') {
-    return <AccountSettingsScreen 
-            userEmail={userProfile?.email || 'test@example.com'} // ダミーメールアドレス
-            onEditProfile={handleShowProfileEdit}
-            onChangeEmail={() => console.log('メールアドレス変更画面へ (未実装)')}
-            onChangePassword={() => console.log('パスワード変更画面へ (未実装)')}
-            onLogout={handleLogout} // ログアウト処理を接続
-            onDeleteAccount={() => console.log('アカウント削除処理 (未実装)')}
-            onBack={() => setCurrentScreen('tripList')} 
-           />;
-  }
-  if (currentScreen === 'signup') {
-    return <SignupScreen 
-            onSignup={handleSignup} 
-            onNavigateToLogin={() => setCurrentScreen('login')} 
-           />;
-  }
-  if (currentScreen === 'passwordReset') {
-    return <PasswordResetScreen
-            onSendResetLink={(email) => console.log('リセットリンク送信指示:', email)} // ダミー
-            onNavigateToLogin={() => setCurrentScreen('login')}
-           />;
-  }
-  // TODO: 下部ナビゲーションを実装し、そこから publicTripsSearch や accountSettings に遷移できるようにする
-  // ログイン状態によって表示する初期画面を制御 (useEffectで対応済みだが、ここでもガード)
-  if (!currentUser && currentScreen !== 'login' && currentScreen !== 'signup' && currentScreen !== 'passwordReset') {
-     return <LoginScreen 
-              onLogin={handleLogin} 
-              onNavigateToSignup={() => setCurrentScreen('signup')} 
-              onForgotPassword={() => setCurrentScreen('passwordReset')} 
-            />;
-  }
-
-  const screensWithoutNavBar = ['login', 'signup', 'passwordReset', 'planForm', 'memoryForm', 'profileEdit']; // NavBarを表示しない画面
-  const showNavBar = currentUser && !screensWithoutNavBar.includes(currentScreen);
 
   let screenComponent;
-  if (currentScreen === 'tripList') {
-    screenComponent = <TripListScreen trips={trips} onAddNewPlan={() => handleShowPlanForm()} onEditPlan={handleShowPlanForm}
-                        onSelectTrip={handleShowTripDetail} onViewMemories={(tripId) => handleShowMemoryView(tripId)} 
-                        onShowPublicTripsSearch={handleShowPublicTripsSearch} 
-                        onShowProfileEdit={handleShowAccountSettings} />;
+  if (!currentUser && !['login', 'signup', 'passwordReset', 'accountDeletionConfirm'].includes(currentScreen)) {
+    screenComponent = <LoginScreen onLogin={handleLogin} onNavigateToSignup={() => setCurrentScreen('signup')} onForgotPassword={() => setCurrentScreen('passwordReset')} />;
+  } else if (currentScreen === 'login') {
+    screenComponent = <LoginScreen onLogin={handleLogin} onNavigateToSignup={() => setCurrentScreen('signup')} onForgotPassword={() => setCurrentScreen('passwordReset')} />;
   } else if (currentScreen === 'planForm') {
-    screenComponent = <PlanFormScreen currentPlan={editingPlan} onSave={handleSavePlan} onCancel={handleCancelPlanForm} onShowPlaceSearch={handleShowPlaceSearch} />;
+    screenComponent = <PlanFormScreen currentPlan={editingPlan} onSave={handleSavePlan} onCancel={handleCancelPlanForm} onShowPlaceSearch={handleShowPlaceSearchForPlanForm} />;
   } else if (currentScreen === 'tripDetail') {
-    screenComponent = <TripDetailScreen trip={selectedTrip} onBack={handleBackToList} onEditPlanBasics={handleShowPlanForm} 
-                        onRequestAI={() => handleRequestAIForTrip(selectedTrip)}
-                        onShowRouteOptions={handleShowRouteOptions}
-                        onAddMemoryForEvent={(eventName) => handleShowMemoryForm(eventName)} 
-                        onShowHotelRecommendations={(hotel) => handleShowHotelRecommendations(hotel)} />;
+    screenComponent = <TripDetailScreen trip={selectedTrip} onBack={handleBackToList} onEditPlanBasics={handleShowPlanForm} onRequestAI={() => handleRequestAIForTrip(selectedTrip)} onShowRouteOptions={handleShowRouteOptions} onAddMemoryForEvent={(eventName, date) => handleShowMemoryForm(selectedTrip.id, eventName, date)} onShowHotelRecommendations={(hotel) => handleShowHotelRecommendations(hotel)} onAddEventToDay={(date) => handleShowEventForm(selectedTrip.id, date)} onViewOverallMemories={handleShowMemoryView} onChangeTripStatus={handleChangeTripStatus} onSetHotelForDay={(date) => handleSetHotelForDay(selectedTrip.id, date)} />;
   } else if (currentScreen === 'placeSearch') {
-    screenComponent = <PlaceSearchScreen onSelectPlace={handlePlaceSelected} onCancel={() => setCurrentScreen(editingPlan ? 'planForm' : 'tripList')} />;
+    screenComponent = <PlaceSearchScreen onSelectPlace={newHandlePlaceSelected} onCancel={() => { if (placeSearchContext && placeSearchContext.returnScreen) { setCurrentScreen(placeSearchContext.returnScreen); } else if (editingPlan) { setCurrentScreen('planForm'); } else { setCurrentScreen('tripList'); } setPlaceSearchContext(null); }} />;
   } else if (currentScreen === 'placeDetail') {
-    const dummyPlaceForDetail = selectedPlaceDetail || { 
-      name: 'ダミーの場所詳細', address: '東京都サンプル区1-2-3', category: '観光', rating: 4.5, 
-      photos: ['https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?q=80&w=1000&auto=format&fit=crop'],
-      openingHours: "月-金: 9:00-18:00\n土: 10:00-17:00\n日: 定休日",
-      reviews: [{author_name: "テストユーザー", rating: 5, text: "素晴らしい場所でした！"}]
-    };
-    screenComponent = <PlaceDetailScreen place={dummyPlaceForDetail} onBack={handleBackFromPlaceDetail}
-                        onAddToList={(place) => console.log('リストに追加:', place.name)}
-                        onAddToTrip={(place) => console.log('旅程に追加:', place.name)} />;
+    const dummyPlace = selectedPlaceDetail || { name: 'ダミー場所', address: '住所未定', category: '不明', rating: 0 };
+    screenComponent = <PlaceDetailScreen place={dummyPlace} onBack={handleBackFromPlaceDetail} onAddToList={(p) => console.log('リスト追加:', p.name)} onAddToTrip={(p) => console.log('旅程追加:', p.name)} />;
   } else if (currentScreen === 'routeOptions') {
-    screenComponent = <RouteOptionsScreen origin={currentRouteQuery?.origin} destination={currentRouteQuery?.destination}
-                        onSelectRoute={handleRouteSelected} onCancel={() => setCurrentScreen('tripDetail')} />;
+    screenComponent = <RouteOptionsScreen origin={currentRouteQuery?.origin} destination={currentRouteQuery?.destination} onSelectRoute={handleRouteSelected} onCancel={() => setCurrentScreen('tripDetail')} />;
   } else if (currentScreen === 'memoryForm') {
-    screenComponent = <MemoryFormScreen eventName={editingMemoryForEvent?.eventName} existingMemory={editingMemoryForEvent?.existingMemory}
-                        onSaveMemory={handleSaveMemory} onCancel={() => setCurrentScreen('tripDetail')} />;
+    screenComponent = <MemoryFormScreen tripId={editingMemoryForEvent?.tripId} eventName={editingMemoryForEvent?.eventName} existingMemory={editingMemoryForEvent?.existingMemory} onSaveMemory={handleSaveMemory} onCancel={() => setCurrentScreen(editingMemoryForEvent?.tripId ? 'memoryView' : 'tripDetail')} />;
   } else if (currentScreen === 'memoryView') {
-    screenComponent = <MemoryViewScreen tripId={viewingMemoriesForTripId}
-                        onBack={() => setCurrentScreen(selectedTrip ? 'tripDetail' : 'tripList')}
-                        onEditMemory={(tripId, eventName) => {
-                          const targetTrip = trips.find(t => t.id === tripId);
-                          handleShowMemoryForm(eventName || `${targetTrip?.name} 全体の思い出`, null);
-                        }} />;
+    const memoryTripData = trips.find(t => t.id === viewingMemoriesForTripId);
+    screenComponent = <MemoryViewScreen tripId={viewingMemoriesForTripId} tripData={memoryTripData} onBack={() => setCurrentScreen(selectedTrip ? 'tripDetail' : 'tripList')} onEditOverallMemory={(tid) => handleShowMemoryForm(tid, null, null)} onEditEventMemory={(tid, date, eventName) => handleShowMemoryForm(tid, eventName, date)} />;
   } else if (currentScreen === 'publicTripsSearch') {
     screenComponent = <PublicTripsSearchScreen onSelectPublicTrip={handleSelectPublicTrip} onCancel={() => setCurrentScreen('tripList')} />;
   } else if (currentScreen === 'publicTripDetail') {
-    screenComponent = <PublicTripDetailScreen publicTripId={selectedPublicTripDetail?.id} 
-                        onBack={() => setCurrentScreen('publicTripsSearch')} onCopyToMyPlans={handleCopyToMyPlans} />;
+    screenComponent = <PublicTripDetailScreen publicTripId={selectedPublicTripDetail?.id} onBack={() => setCurrentScreen('publicTripsSearch')} onCopyToMyPlans={handleCopyToMyPlans} />;
   } else if (currentScreen === 'hotelRecommendations') {
-    screenComponent = <HotelRecommendationsScreen hotel={currentHotelForRecommendations} 
-                        onBack={() => setCurrentScreen(selectedTrip ? 'tripDetail' : 'tripList')} 
-                        onSelectPlace={handleShowPlaceDetail} />;
+    screenComponent = <HotelRecommendationsScreen hotel={currentHotelForRecommendations} onBack={() => { setAiRecommendedCourses([]); setCurrentScreen(selectedTrip ? 'tripDetail' : 'tripList');}} onSelectPlace={handleShowPlaceDetail} onAICourseRequest={handleRequestAICourse} aiRecommendedCourses={aiRecommendedCourses} />;
   } else if (currentScreen === 'profileEdit') {
-    screenComponent = <ProfileEditScreen userProfile={userProfile} onSaveProfile={handleSaveProfile} 
-                        onCancel={() => setCurrentScreen('accountSettings')} />;
+    screenComponent = <ProfileEditScreen userProfile={userProfile} onSaveProfile={handleSaveProfile} onCancel={() => setCurrentScreen('myProfile')} />;
   } else if (currentScreen === 'accountSettings') {
-    screenComponent = <AccountSettingsScreen 
-                        userEmail={userProfile?.email || 'test@example.com'} 
-                        onEditProfile={handleShowProfileEdit}
-                        onChangeEmail={() => console.log('メールアドレス変更画面へ (未実装)')}
-                        onChangePassword={() => console.log('パスワード変更画面へ (未実装)')}
-                        onLogout={handleLogout} 
-                        onDeleteAccount={() => console.log('アカウント削除処理 (未実装)')}
-                        onBack={() => setCurrentScreen('tripList')} />;
+    screenComponent = <AccountSettingsScreen userEmail={userProfile?.email || 'test@example.com'} onChangeEmail={handleChangeEmailRequest} onChangePassword={handleChangePasswordRequest} onLogout={handleLogout} onDeleteAccount={handleDeleteAccountRequest} onBack={handleShowMyProfile} />;
   } else if (currentScreen === 'signup') {
     screenComponent = <SignupScreen onSignup={handleSignup} onNavigateToLogin={() => setCurrentScreen('login')} />;
   } else if (currentScreen === 'passwordReset') {
-    screenComponent = <PasswordResetScreen onSendResetLink={(email) => console.log('リセットリンク送信指示:', email)} 
-                        onNavigateToLogin={() => setCurrentScreen('login')} />;
-  } else if (!currentUser) { // 上記以外の画面で未ログインならログイン画面
-    screenComponent = <LoginScreen onLogin={handleLogin} onNavigateToSignup={() => setCurrentScreen('signup')} 
-                        onForgotPassword={() => setCurrentScreen('passwordReset')} />;
-  } else { // デフォルト (ログイン済み)
-    screenComponent = <TripListScreen trips={trips} onAddNewPlan={() => handleShowPlanForm()} onEditPlan={handleShowPlanForm}
-                        onSelectTrip={handleShowTripDetail} onViewMemories={(tripId) => handleShowMemoryView(tripId)} 
-                        onShowPublicTripsSearch={handleShowPublicTripsSearch} 
-                        onShowProfileEdit={handleShowAccountSettings} />;
+    screenComponent = <PasswordResetScreen onSendResetLink={handleSendPasswordResetLink} onNavigateToLogin={() => setCurrentScreen('login')} onConfirmCodeAndSetNewPassword={handleConfirmCodeAndSetNewPassword} />;
+  } else if (currentScreen === 'eventForm' && editingEventDetails) {
+    screenComponent = <EventFormScreen date={editingEventDetails.date} existingEvent={editingEventDetails.existingEvent} onSaveEvent={handleSaveEvent} onCancel={() => setCurrentScreen('tripDetail')} onShowPlaceSearch={handleShowPlaceSearchForEvent} />;
+  } 
+  else if (currentScreen === 'accountDeletionConfirm') { 
+    screenComponent = <AccountDeletionConfirmScreen userEmail={currentUser?.email} onConfirm={handleConfirmAccountDeletion} onCancel={() => setCurrentScreen('accountSettings')} />;
+  } 
+  else if (currentScreen === 'passwordChange') { 
+    screenComponent = <PasswordChangeScreen onConfirm={handleConfirmPasswordChange} onCancel={() => setCurrentScreen('accountSettings')} />;
   }
+  else if (currentScreen === 'emailChange') { 
+    screenComponent = <EmailChangeScreen currentEmail={currentUser?.email} onSendConfirm={handleSendEmailConfirmation} onCancel={() => setCurrentScreen('accountSettings')} />;
+  }
+  else if (currentScreen === 'myProfile') {
+    screenComponent = <MyProfileScreen userProfile={userProfile} onEditProfile={handleShowProfileEdit} onShowAccountSettings={handleShowAccountSettings} onLogout={handleLogout} />;
+  }
+  else { 
+    screenComponent = <TripListScreen trips={trips} onAddNewPlan={() => handleShowPlanForm()} onEditPlan={handleShowPlanForm} onSelectTrip={handleShowTripDetail} onViewMemories={(tripId) => handleShowMemoryView(tripId)} onShowPublicTripsSearch={handleShowPublicTripsSearch} onShowProfileEdit={handleShowMyProfile} />;
+  }
+  
+  const screensWithoutNavBar = ['login', 'signup', 'passwordReset', 'planForm', 'memoryForm', 'profileEdit', 'placeSearch', 'routeOptions', 'eventForm', 'accountDeletionConfirm', 'passwordChange', 'emailChange', 'accountSettings'];
+  const showNavBar = currentUser && !screensWithoutNavBar.includes(currentScreen);
 
   return (
-    <>
-      {screenComponent}
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <div style={{ flexGrow: 1, paddingBottom: showNavBar ? '70px' : '0' }}>
+        {screenComponent}
+      </div>
       {showNavBar && <BottomNavBar currentScreen={currentScreen} onNavigate={setCurrentScreen} />}
-    </>
+    </div>
   );
 }
 
