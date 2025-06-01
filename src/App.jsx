@@ -108,11 +108,7 @@ function App() {
     if (placeSearchContext && placeSearchContext.returnScreen) { setCurrentScreen(placeSearchContext.returnScreen); } 
     else if (currentHotelForRecommendations) { setCurrentScreen('hotelRecommendations'); } 
     else if (selectedTrip) { setCurrentScreen('tripDetail'); } 
-<<<<<<< HEAD
     else { setCurrentScreen('placeSearch'); }
-=======
-    else { setCurrentScreen('placeSearch'); } 
->>>>>>> 88c022fe3b2c7664ff14bb2c91a0a800589187f0
     setSelectedPlaceDetail(null); 
   };
   const handleShowRouteOptions = (origin, destination) => { setCurrentRouteQuery({ origin, destination }); setCurrentScreen('routeOptions'); };
