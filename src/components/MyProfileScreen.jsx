@@ -1,7 +1,7 @@
 import React from 'react';
 // import './MyProfileScreen.css'; // 必要に応じて作成
 
-function MyProfileScreen({ userProfile, onEditProfile, onShowAccountSettings, onLogout, onShowFavoritePlaces }) {
+function MyProfileScreen({ userProfile, onEditProfile, onShowAccountSettings, onLogout, onShowFavoritePlaces, onShowBackendTest }) { // onShowBackendTest を追加
   if (!userProfile) {
     // ユーザープロファイルがない場合は、ローディング表示やエラーメッセージなどを表示
     // ここでは簡略化のため、何も表示しないか、ログインを促すメッセージを表示
@@ -54,9 +54,15 @@ function MyProfileScreen({ userProfile, onEditProfile, onShowAccountSettings, on
           <span className="settings-item-label">アカウント設定</span>
           <span className="settings-item-arrow" style={{float: 'right'}}>{'>'}</span>
         </div>
-         <div className="settings-item settings-item-danger" onClick={onLogout} style={{cursor: 'pointer', padding: '15px', background: 'white', borderRadius: '0 0 8px 8px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', marginTop: '1px'}}>
+         <div className="settings-item settings-item-danger" onClick={onLogout} style={{cursor: 'pointer', padding: '15px', background: 'white', borderRadius: onShowBackendTest ? '0' : '0 0 8px 8px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', marginTop: '1px'}}>
           <span className="settings-item-label">ログアウト</span>
         </div>
+        {/* 開発者向けテストボタン */}
+        {onShowBackendTest && (
+          <div className="settings-item" onClick={onShowBackendTest} style={{cursor: 'pointer', padding: '15px', borderTop: '1px solid #eee', background: '#f0f0f0', borderRadius: '0 0 8px 8px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', marginTop: '10px', textAlign: 'center' }}>
+            <span className="settings-item-label" style={{color: '#337ab7'}}>Backend API Test</span>
+          </div>
+        )}
       </div>
     </div>
   );

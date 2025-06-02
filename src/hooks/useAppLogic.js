@@ -456,6 +456,7 @@ export const useAppLogic = () => {
     handleConfirmCodeAndSetNewPassword, handleShowMyProfile, handleShowFavoritePlaces,
     handleShowFavoritePickerForEvent, handleRequestAICourse,
     handleShowPublishSettings, handleSavePublishSettings, handleCancelPublishSettings,
-    handleShowHotelDetailModal, handleSaveHotelDetails, handleCancelHotelDetailModal // 追加
+    handleShowHotelDetailModal, handleSaveHotelDetails, handleCancelHotelDetailModal,
+    handleShowBackendTest: () => setCurrentScreen('backendTest') // 追加
   };
 };

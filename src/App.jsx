@@ -27,7 +27,8 @@ import EmailChangeScreen from './components/EmailChangeScreen';
 import MyProfileScreen from './components/MyProfileScreen';
 import FavoritePlacesScreen from './components/FavoritePlacesScreen';
 import TripPublishSettingsScreen from './components/TripPublishSettingsScreen';
-import HotelDetailModal from './components/HotelDetailModal'; // 追加
+import HotelDetailModal from './components/HotelDetailModal';
+import BackendTestScreen from './components/BackendTestScreen'; // 追加
 
 function App() {
   const {
@@ -48,7 +49,7 @@ function App() {
     aiRecommendedCourses,
     favoritePickerContext, setFavoritePickerContext,
     editingPublishSettingsForTripId,
-    editingHotelDetails, // 追加
+    editingHotelDetails,
     handleShowPlanForm, handleShowTripDetail, handleSavePlan, handleCancelPlanForm, handleBackToList,
     handleRequestAIForTrip, handleShowPlaceSearchGeneral, handleShowPlaceSearchForPlanForm,
     handleShowPlaceSearchForEvent, handleSetHotelForDay, newHandlePlaceSelected,
@@ -63,7 +64,8 @@ function App() {
     handleConfirmCodeAndSetNewPassword, handleShowMyProfile, handleShowFavoritePlaces,
     handleShowFavoritePickerForEvent, handleRequestAICourse,
     handleShowPublishSettings, handleSavePublishSettings, handleCancelPublishSettings,
-    handleShowHotelDetailModal, handleSaveHotelDetails, handleCancelHotelDetailModal // 追加
+    handleShowHotelDetailModal, handleSaveHotelDetails, handleCancelHotelDetailModal,
+    handleShowBackendTest // 追加
   } = useAppLogic();
 
   let screenComponent;
@@ -123,7 +125,7 @@ function App() {
     screenComponent = <EmailChangeScreen currentEmail={currentUser?.email} onSendConfirm={handleSendEmailConfirmation} onCancel={() => setCurrentScreen('accountSettings')} />;
   }
   else if (currentScreen === 'myProfile') {
-    screenComponent = <MyProfileScreen userProfile={userProfile} onEditProfile={handleShowProfileEdit} onShowAccountSettings={handleShowAccountSettings} onLogout={handleLogout} onShowFavoritePlaces={handleShowFavoritePlaces} />; 
+    screenComponent = <MyProfileScreen userProfile={userProfile} onEditProfile={handleShowProfileEdit} onShowAccountSettings={handleShowAccountSettings} onLogout={handleLogout} onShowFavoritePlaces={handleShowFavoritePlaces} onShowBackendTest={handleShowBackendTest} />; 
   }
   else if (currentScreen === 'favoritePlacesList') {
     screenComponent = <FavoritePlacesScreen 
@@ -157,11 +159,14 @@ function App() {
                         onCancel={handleCancelPublishSettings} 
                       />;
   }
+  else if (currentScreen === 'backendTest') { // 追加
+    screenComponent = <BackendTestScreen onBack={handleShowMyProfile} />;
+  }
   else { 
     screenComponent = <TripListScreen trips={trips} onAddNewPlan={() => handleShowPlanForm()} onEditPlan={handleShowPlanForm} onSelectTrip={handleShowTripDetail} onViewMemories={(tripId) => handleShowMemoryView(tripId)} onShowPublicTripsSearch={handleShowPublicTripsSearch} onShowProfileEdit={handleShowMyProfile} />;
   }
   
-  const screensWithoutNavBar = ['login', 'signup', 'passwordReset', 'planForm', 'memoryForm', 'profileEdit', 'placeSearch', 'routeOptions', 'eventForm', 'accountDeletionConfirm', 'passwordChange', 'emailChange', 'accountSettings', 'favoritePlacesList', 'favoritePicker', 'tripPublishSettings']; // tripPublishSettings も追加
+  const screensWithoutNavBar = ['login', 'signup', 'passwordReset', 'planForm', 'memoryForm', 'profileEdit', 'placeSearch', 'routeOptions', 'eventForm', 'accountDeletionConfirm', 'passwordChange', 'emailChange', 'accountSettings', 'favoritePlacesList', 'favoritePicker', 'tripPublishSettings', 'backendTest']; // backendTest も追加
   const showNavBar = currentUser && !screensWithoutNavBar.includes(currentScreen);
 
   return (
