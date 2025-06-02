@@ -300,7 +300,12 @@ export const useAppLogic = () => {
   const handleShowAccountSettings = () => setCurrentScreen('accountSettings');
   const handleLogin = (userData) => { setCurrentUser({name: userData.name, email: userData.email}); setUserProfile(prev => ({...prev, nickname: userData.name, email: userData.email})); setCurrentScreen('tripList'); };
   const handleSignup = (signupData) => { setCurrentUser({ name: signupData.nickname, email: signupData.email }); setUserProfile(prev => ({...prev, nickname: signupData.nickname, email: signupData.email, bio: '' })); setCurrentScreen('tripList'); };
-  const handleLogout = () => { setCurrentUser(null); setCurrentScreen('login'); };
+  const handleLogout = () => { 
+    if (window.confirm('本当にログアウトしますか？')) {
+      setCurrentUser(null); 
+      setCurrentScreen('login'); 
+    }
+  };
   const handleChangeTripStatus = (tripId, newStatus) => { setTrips(prevTrips => prevTrips.map(trip => trip.id === tripId ? { ...trip, status: newStatus } : trip )); if (selectedTrip && selectedTrip.id === tripId) { setSelectedTrip(prevSelectedTrip => ({ ...prevSelectedTrip, status: newStatus })); } };
   const handleToggleTripPublicStatus = (tripId) => {
     setTrips(prevTrips => prevTrips.map(trip => 
