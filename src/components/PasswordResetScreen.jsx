@@ -4,46 +4,54 @@ import React, { useState } from 'react';
 function PasswordResetScreen({ onSendResetLink, onNavigateToLogin, onConfirmCodeAndSetNewPassword }) {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState({}); // エラー状態をオブジェクトに変更
   const [step, setStep] = useState(1); // 1: メール入力, 2: コードと新パスワード入力
   const [confirmationCode, setConfirmationCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
 
+  const validateEmailForm = () => {
+    const newErrors = {};
+    if (!email) newErrors.email = 'メールアドレスを入力してください。';
+    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = '有効なメールアドレスを入力してください。';
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateNewPasswordForm = () => {
+    const newErrors = {};
+    if (!confirmationCode) newErrors.confirmationCode = '確認コードを入力してください。';
+    if (!newPassword) newErrors.newPassword = '新しいパスワードを入力してください。';
+    else if (newPassword.length < 8) newErrors.newPassword = 'パスワードは8文字以上で入力してください。';
+    else if (!/^(?=.*[a-zA-Z])(?=.*[0-9])/.test(newPassword)) newErrors.newPassword = 'パスワードは英字と数字の両方を含めてください。';
+    
+    if (!confirmNewPassword) newErrors.confirmNewPassword = '確認用パスワードを入力してください。';
+    else if (newPassword !== confirmNewPassword) newErrors.confirmNewPassword = '新しいパスワードと確認用パスワードが一致しません。';
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleEmailSubmit = (e) => {
     e.preventDefault();
-    setError('');
+    if (!validateEmailForm()) return;
+    
     setMessage('');
-    if (!email) {
-      setError('メールアドレスを入力してください。');
-      return;
-    }
-    // onSendResetLink(email); // 実際のメール送信処理 (App.jsxでダミー実装)
+    // onSendResetLink(email); // 実際のメール送信処理
     console.log('パスワードリセットリクエスト（メール送信）:', email);
     setMessage(`パスワード再設定用の確認コードを ${email} に送信しました。メールを確認し、以下のフォームに入力してください。（ダミー処理）`);
-    setStep(2); // 次のステップへ
+    setStep(2);
   };
 
   const handleNewPasswordSubmit = (e) => {
     e.preventDefault();
-    setError('');
+    if (!validateNewPasswordForm()) return;
+
     setMessage('');
-    if (!confirmationCode) {
-      setError('確認コードを入力してください。');
-      return;
-    }
-    if (newPassword !== confirmNewPassword) {
-      setError('新しいパスワードと確認用パスワードが一致しません。');
-      return;
-    }
-    if (newPassword.length < 8) {
-      setError('新しいパスワードは8文字以上で入力してください。');
-      return;
-    }
-    // onConfirmCodeAndSetNewPassword(email, confirmationCode, newPassword); // 実際の処理 (App.jsxでダミー実装)
+    // onConfirmCodeAndSetNewPassword(email, confirmationCode, newPassword); // 実際の処理
     console.log('新パスワード設定リクエスト:', { email, confirmationCode, newPassword });
     alert('パスワードが正常に再設定されました。（ダミー処理）');
-    onNavigateToLogin(); // ログイン画面へ
+    onNavigateToLogin();
   };
 
   return (
@@ -54,8 +62,8 @@ function PasswordResetScreen({ onSendResetLink, onNavigateToLogin, onConfirmCode
 
       {step === 1 && (
         <form onSubmit={handleEmailSubmit} className="auth-form">
-          {message && <p className="success-message">{message}</p>}
-          {error && <p className="error-message">{error}</p>}
+          {message && <p className="success-message" style={{textAlign: 'center'}}>{message}</p>}
+          {errors.form && <p className="error-message">{errors.form}</p>} {/* 全体エラー用 */}
           
           <p style={{textAlign: 'center', marginBottom: '15px'}}>
             登録済みのメールアドレスを入力してください。パスワード再設定用の確認コードを送信します。
@@ -68,9 +76,10 @@ function PasswordResetScreen({ onSendResetLink, onNavigateToLogin, onConfirmCode
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
               autoComplete="email"
+              aria-describedby="emailError"
             />
+            {errors.email && <p id="emailError" className="error-message field-error">{errors.email}</p>}
           </div>
           <button type="submit" className="auth-button">確認コードを送信</button>
         </form>
@@ -78,8 +87,8 @@ function PasswordResetScreen({ onSendResetLink, onNavigateToLogin, onConfirmCode
 
       {step === 2 && (
         <form onSubmit={handleNewPasswordSubmit} className="auth-form">
-          {message && <p className="success-message">{message}</p>}
-          {error && <p className="error-message">{error}</p>}
+          {message && <p className="success-message" style={{textAlign: 'center'}}>{message}</p>}
+           {errors.form && <p className="error-message">{errors.form}</p>} {/* 全体エラー用 */}
 
           <div className="form-section">
             <label htmlFor="confirmation-code">確認コード</label>
@@ -88,9 +97,10 @@ function PasswordResetScreen({ onSendResetLink, onNavigateToLogin, onConfirmCode
               id="confirmation-code"
               value={confirmationCode}
               onChange={(e) => setConfirmationCode(e.target.value)}
-              required
               placeholder="メールで受信したコード"
+              aria-describedby="confirmationCodeError"
             />
+            {errors.confirmationCode && <p id="confirmationCodeError" className="error-message field-error">{errors.confirmationCode}</p>}
           </div>
           <div className="form-section">
             <label htmlFor="new-password-reset">新しいパスワード</label>
@@ -99,9 +109,10 @@ function PasswordResetScreen({ onSendResetLink, onNavigateToLogin, onConfirmCode
               id="new-password-reset"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              required
               minLength="8"
+              aria-describedby="newPasswordError"
             />
+            {errors.newPassword && <p id="newPasswordError" className="error-message field-error">{errors.newPassword}</p>}
           </div>
           <div className="form-section">
             <label htmlFor="confirm-new-password-reset">新しいパスワード (確認用)</label>
@@ -110,9 +121,10 @@ function PasswordResetScreen({ onSendResetLink, onNavigateToLogin, onConfirmCode
               id="confirm-new-password-reset"
               value={confirmNewPassword}
               onChange={(e) => setConfirmNewPassword(e.target.value)}
-              required
               minLength="8"
+              aria-describedby="confirmNewPasswordError"
             />
+            {errors.confirmNewPassword && <p id="confirmNewPasswordError" className="error-message field-error">{errors.confirmNewPassword}</p>}
           </div>
           <button type="submit" className="auth-button">パスワードを更新</button>
         </form>
