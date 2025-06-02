@@ -89,7 +89,7 @@ function DailySchedule({ schedule, trip, onSelectTravelSegment, onAddMemoryForEv
   );
 }
 
-function TripDetailScreen({ trip, onBack, onEditPlanBasics, onRequestAI, onShowRouteOptions, onAddMemoryForEvent, onShowHotelRecommendations, onAddEventToDay, onViewOverallMemories, onChangeTripStatus, onSetHotelForDay, onTogglePublicStatus, onCopyMyOwnTrip }) {
+function TripDetailScreen({ trip, onBack, onEditPlanBasics, onRequestAI, onShowRouteOptions, onAddMemoryForEvent, onShowHotelRecommendations, onAddEventToDay, onViewOverallMemories, onChangeTripStatus, onSetHotelForDay, onTogglePublicStatus, onCopyMyOwnTrip, onShowPublishSettings }) { // onShowPublishSettings を追加
   const [selectedDate, setSelectedDate] = useState(null); 
   const [isEditingStatus, setIsEditingStatus] = useState(false);
 
@@ -168,7 +168,13 @@ function TripDetailScreen({ trip, onBack, onEditPlanBasics, onRequestAI, onShowR
                 公開すると、他のユーザーがこの旅程を検索・閲覧できるようになります。
               </p>
             )}
-            {/* TODO: Issue #62 - 公開範囲や公開情報の詳細設定UIをここに追加 */}
+            <button 
+              onClick={() => onShowPublishSettings(trip.id)} 
+              style={{fontSize: '0.9em', padding: '6px 10px', marginTop: '10px'}}
+            >
+              公開の詳細設定...
+            </button>
+            {/* TODO: Issue #62 - 公開範囲や公開情報の詳細設定UIをここに追加 は TripPublishSettingsScreen で対応 */}
           </div>
         )}
       </div>

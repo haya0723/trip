@@ -26,6 +26,7 @@ import PasswordChangeScreen from './components/PasswordChangeScreen';
 import EmailChangeScreen from './components/EmailChangeScreen';
 import MyProfileScreen from './components/MyProfileScreen';
 import FavoritePlacesScreen from './components/FavoritePlacesScreen';
+import TripPublishSettingsScreen from './components/TripPublishSettingsScreen'; // 追加
 
 function App() {
   const {
@@ -45,6 +46,7 @@ function App() {
     placeSearchContext,
     aiRecommendedCourses,
     favoritePickerContext, setFavoritePickerContext,
+    editingPublishSettingsForTripId, // 追加
     handleShowPlanForm, handleShowTripDetail, handleSavePlan, handleCancelPlanForm, handleBackToList,
     handleRequestAIForTrip, handleShowPlaceSearchGeneral, handleShowPlaceSearchForPlanForm,
     handleShowPlaceSearchForEvent, handleSetHotelForDay, newHandlePlaceSelected,
@@ -57,7 +59,8 @@ function App() {
     handleConfirmAccountDeletion, handleChangePasswordRequest, handleConfirmPasswordChange,
     handleChangeEmailRequest, handleSendEmailConfirmation, handleSendPasswordResetLink,
     handleConfirmCodeAndSetNewPassword, handleShowMyProfile, handleShowFavoritePlaces,
-    handleShowFavoritePickerForEvent, handleRequestAICourse
+    handleShowFavoritePickerForEvent, handleRequestAICourse,
+    handleShowPublishSettings, handleSavePublishSettings, handleCancelPublishSettings // 追加
   } = useAppLogic();
 
   let screenComponent;
@@ -143,11 +146,19 @@ function App() {
                         isPickerMode={true} 
                       />;
   }
+  else if (currentScreen === 'tripPublishSettings' && editingPublishSettingsForTripId) {
+    const tripToEditPublishSettings = trips.find(t => t.id === editingPublishSettingsForTripId);
+    screenComponent = <TripPublishSettingsScreen 
+                        trip={tripToEditPublishSettings} 
+                        onSave={handleSavePublishSettings} 
+                        onCancel={handleCancelPublishSettings} 
+                      />;
+  }
   else { 
     screenComponent = <TripListScreen trips={trips} onAddNewPlan={() => handleShowPlanForm()} onEditPlan={handleShowPlanForm} onSelectTrip={handleShowTripDetail} onViewMemories={(tripId) => handleShowMemoryView(tripId)} onShowPublicTripsSearch={handleShowPublicTripsSearch} onShowProfileEdit={handleShowMyProfile} />;
   }
   
-  const screensWithoutNavBar = ['login', 'signup', 'passwordReset', 'planForm', 'memoryForm', 'profileEdit', 'placeSearch', 'routeOptions', 'eventForm', 'accountDeletionConfirm', 'passwordChange', 'emailChange', 'accountSettings', 'favoritePlacesList', 'favoritePicker'];
+  const screensWithoutNavBar = ['login', 'signup', 'passwordReset', 'planForm', 'memoryForm', 'profileEdit', 'placeSearch', 'routeOptions', 'eventForm', 'accountDeletionConfirm', 'passwordChange', 'emailChange', 'accountSettings', 'favoritePlacesList', 'favoritePicker', 'tripPublishSettings']; // tripPublishSettings も追加
   const showNavBar = currentUser && !screensWithoutNavBar.includes(currentScreen);
 
   return (

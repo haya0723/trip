@@ -107,6 +107,7 @@ export const useAppLogic = () => {
   const [placeSearchContext, setPlaceSearchContext] = useState(null);
   const [aiRecommendedCourses, setAiRecommendedCourses] = useState([]);
   const [favoritePickerContext, setFavoritePickerContext] = useState(null);
+  const [editingPublishSettingsForTripId, setEditingPublishSettingsForTripId] = useState(null); // 追加
 
   useEffect(() => {
     const authScreens = ['login', 'signup', 'passwordReset', 'accountDeletionConfirm'];
@@ -353,6 +354,30 @@ export const useAppLogic = () => {
     setFavoritePickerContext({ returnScreen: 'eventForm', callback });
     setCurrentScreen('favoritePicker'); 
   };
+
+  const handleShowPublishSettings = (tripId) => {
+    setEditingPublishSettingsForTripId(tripId);
+    setCurrentScreen('tripPublishSettings');
+  };
+
+  const handleSavePublishSettings = (tripId, settings) => {
+    setTrips(prevTrips => prevTrips.map(t => 
+      t.id === tripId ? { ...t, publishSettings: settings, isPublic: true } : t
+    ));
+    // selectedTripも更新する必要がある場合
+    if (selectedTrip && selectedTrip.id === tripId) {
+      setSelectedTrip(prev => ({ ...prev, publishSettings: settings, isPublic: true }));
+    }
+    setEditingPublishSettingsForTripId(null);
+    setCurrentScreen('tripDetail');
+    alert('公開設定を保存しました。');
+  };
+
+  const handleCancelPublishSettings = () => {
+    setEditingPublishSettingsForTripId(null);
+    setCurrentScreen('tripDetail');
+  };
+
   const handleRequestAICourse = (hotel, params) => {
     console.log('AIコース提案リクエスト:', { hotel, params });
     const dummyCourses = [
@@ -379,6 +404,7 @@ export const useAppLogic = () => {
     placeSearchContext, setPlaceSearchContext,
     aiRecommendedCourses, setAiRecommendedCourses,
     favoritePickerContext, setFavoritePickerContext,
+    editingPublishSettingsForTripId, // 追加
     handleShowPlanForm, handleShowTripDetail, handleSavePlan, handleCancelPlanForm, handleBackToList,
     handleRequestAIForTrip, handleShowPlaceSearchGeneral, handleShowPlaceSearchForPlanForm,
     handleShowPlaceSearchForEvent, handleSetHotelForDay, handleHotelSelectedForDay, newHandlePlaceSelected,
@@ -391,6 +417,7 @@ export const useAppLogic = () => {
     handleConfirmAccountDeletion, handleChangePasswordRequest, handleConfirmPasswordChange,
     handleChangeEmailRequest, handleSendEmailConfirmation, handleSendPasswordResetLink,
     handleConfirmCodeAndSetNewPassword, handleShowMyProfile, handleShowFavoritePlaces,
-    handleShowFavoritePickerForEvent, handleRequestAICourse
+    handleShowFavoritePickerForEvent, handleRequestAICourse,
+    handleShowPublishSettings, handleSavePublishSettings, handleCancelPublishSettings // 追加
   };
 };
