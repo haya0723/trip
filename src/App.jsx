@@ -26,7 +26,8 @@ import PasswordChangeScreen from './components/PasswordChangeScreen';
 import EmailChangeScreen from './components/EmailChangeScreen';
 import MyProfileScreen from './components/MyProfileScreen';
 import FavoritePlacesScreen from './components/FavoritePlacesScreen';
-import TripPublishSettingsScreen from './components/TripPublishSettingsScreen'; // 追加
+import TripPublishSettingsScreen from './components/TripPublishSettingsScreen';
+import HotelDetailModal from './components/HotelDetailModal'; // 追加
 
 function App() {
   const {
@@ -46,7 +47,8 @@ function App() {
     placeSearchContext,
     aiRecommendedCourses,
     favoritePickerContext, setFavoritePickerContext,
-    editingPublishSettingsForTripId, // 追加
+    editingPublishSettingsForTripId,
+    editingHotelDetails, // 追加
     handleShowPlanForm, handleShowTripDetail, handleSavePlan, handleCancelPlanForm, handleBackToList,
     handleRequestAIForTrip, handleShowPlaceSearchGeneral, handleShowPlaceSearchForPlanForm,
     handleShowPlaceSearchForEvent, handleSetHotelForDay, newHandlePlaceSelected,
@@ -60,7 +62,8 @@ function App() {
     handleChangeEmailRequest, handleSendEmailConfirmation, handleSendPasswordResetLink,
     handleConfirmCodeAndSetNewPassword, handleShowMyProfile, handleShowFavoritePlaces,
     handleShowFavoritePickerForEvent, handleRequestAICourse,
-    handleShowPublishSettings, handleSavePublishSettings, handleCancelPublishSettings // 追加
+    handleShowPublishSettings, handleSavePublishSettings, handleCancelPublishSettings,
+    handleShowHotelDetailModal, handleSaveHotelDetails, handleCancelHotelDetailModal // 追加
   } = useAppLogic();
 
   let screenComponent;
@@ -167,6 +170,14 @@ function App() {
         {screenComponent}
       </div>
       {showNavBar && <BottomNavBar currentScreen={currentScreen} onNavigate={setCurrentScreen} />}
+
+      {editingHotelDetails && (
+        <HotelDetailModal 
+          hotelData={editingHotelDetails.hotelData}
+          onSave={(newHotelData) => handleSaveHotelDetails(editingHotelDetails.tripId, editingHotelDetails.date, newHotelData)}
+          onCancel={handleCancelHotelDetailModal}
+        />
+      )}
     </div>
   );
 }

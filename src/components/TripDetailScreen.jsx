@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'; // useEffect をインポー
 
 const tripStatuses = ['計画中', '予約済み', '旅行中', '完了', 'キャンセル'];
 
-function DailySchedule({ schedule, trip, onSelectTravelSegment, onAddMemoryForEvent, onShowHotelRecommendations, onAddEventToDay, onRequestAI, onSetHotelForDay, currentDate }) {
+function DailySchedule({ schedule, trip, onSelectTravelSegment, onAddMemoryForEvent, onShowHotelRecommendations, onAddEventToDay, onRequestAI, onSetHotelForDay, currentDate, onShowHotelDetailModal }) { // onShowHotelDetailModal を追加
   return (
     <div className="daily-schedule">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
@@ -33,10 +33,18 @@ function DailySchedule({ schedule, trip, onSelectTravelSegment, onAddMemoryForEv
       <div className="hotel-info-section" style={{ marginBottom: '15px', padding: '10px', background: '#f9f9f9', borderRadius: '4px' }}>
         {schedule.hotel ? (
           <div>
-            <strong>宿泊場所:</strong> {schedule.hotel.name} ({schedule.hotel.address})
-            <button onClick={() => onSetHotelForDay(currentDate)} style={{ marginLeft: '10px', fontSize: '0.8em' }}>変更</button>
-            {schedule.hotel.checkIn && <p style={{fontSize: '0.8em', margin: '5px 0 0 0'}}>チェックイン: {schedule.hotel.checkIn} {schedule.hotel.checkOut && ` / チェックアウト: ${schedule.hotel.checkOut}`}</p>}
-            {schedule.hotel.notes && <p style={{fontSize: '0.8em', margin: '5px 0 0 0'}}>メモ: {schedule.hotel.notes}</p>}
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
+              <div>
+                <strong>宿泊場所:</strong> {schedule.hotel.name} ({schedule.hotel.address || '住所未登録'})
+                {schedule.hotel.checkIn && <p style={{fontSize: '0.8em', margin: '5px 0 0 0'}}>チェックイン: {schedule.hotel.checkIn} {schedule.hotel.checkOut && ` / チェックアウト: ${schedule.hotel.checkOut}`}</p>}
+                {schedule.hotel.reservationNumber && <p style={{fontSize: '0.8em', margin: '5px 0 0 0'}}>予約番号: {schedule.hotel.reservationNumber}</p>}
+                {schedule.hotel.notes && <p style={{fontSize: '0.8em', margin: '5px 0 0 0'}}>備考: {schedule.hotel.notes}</p>}
+              </div>
+              <div>
+                <button onClick={() => onShowHotelDetailModal(trip.id, currentDate, schedule.hotel)} style={{ fontSize: '0.8em', padding: '4px 8px', marginRight: '5px' }}>詳細編集</button>
+                <button onClick={() => onSetHotelForDay(currentDate)} style={{ fontSize: '0.8em', padding: '4px 8px' }}>場所変更</button>
+              </div>
+            </div>
           </div>
         ) : (
           <button onClick={() => onSetHotelForDay(currentDate)}>この日の宿泊場所を設定</button>
@@ -89,7 +97,7 @@ function DailySchedule({ schedule, trip, onSelectTravelSegment, onAddMemoryForEv
   );
 }
 
-function TripDetailScreen({ trip, onBack, onEditPlanBasics, onRequestAI, onShowRouteOptions, onAddMemoryForEvent, onShowHotelRecommendations, onAddEventToDay, onViewOverallMemories, onChangeTripStatus, onSetHotelForDay, onTogglePublicStatus, onCopyMyOwnTrip, onShowPublishSettings }) { // onShowPublishSettings を追加
+function TripDetailScreen({ trip, onBack, onEditPlanBasics, onRequestAI, onShowRouteOptions, onAddMemoryForEvent, onShowHotelRecommendations, onAddEventToDay, onViewOverallMemories, onChangeTripStatus, onSetHotelForDay, onTogglePublicStatus, onCopyMyOwnTrip, onShowPublishSettings, onShowHotelDetailModal }) { // onShowHotelDetailModal を追加
   const [selectedDate, setSelectedDate] = useState(null); 
   const [isEditingStatus, setIsEditingStatus] = useState(false);
 
@@ -209,8 +217,9 @@ function TripDetailScreen({ trip, onBack, onEditPlanBasics, onRequestAI, onShowR
         onShowHotelRecommendations={onShowHotelRecommendations}
         onAddEventToDay={onAddEventToDay} 
         onRequestAI={onRequestAI}
-        onSetHotelForDay={onSetHotelForDay} // Propを渡す
-        currentDate={selectedDate} // 現在選択中の日付を渡す
+        onSetHotelForDay={onSetHotelForDay}
+        currentDate={selectedDate}
+        onShowHotelDetailModal={onShowHotelDetailModal} // Propを渡す
       /> : <p>この日のスケジュールはありません。</p>}
 
       {onViewOverallMemories && (

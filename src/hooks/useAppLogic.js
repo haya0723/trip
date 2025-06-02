@@ -107,7 +107,8 @@ export const useAppLogic = () => {
   const [placeSearchContext, setPlaceSearchContext] = useState(null);
   const [aiRecommendedCourses, setAiRecommendedCourses] = useState([]);
   const [favoritePickerContext, setFavoritePickerContext] = useState(null);
-  const [editingPublishSettingsForTripId, setEditingPublishSettingsForTripId] = useState(null); // 追加
+  const [editingPublishSettingsForTripId, setEditingPublishSettingsForTripId] = useState(null);
+  const [editingHotelDetails, setEditingHotelDetails] = useState(null); // { tripId, date, hotelData }
 
   useEffect(() => {
     const authScreens = ['login', 'signup', 'passwordReset', 'accountDeletionConfirm'];
@@ -383,6 +384,36 @@ export const useAppLogic = () => {
     setCurrentScreen('tripDetail');
   };
 
+  const handleShowHotelDetailModal = (tripId, date, hotelData) => {
+    setEditingHotelDetails({ tripId, date, hotelData });
+    // currentScreen は変更しない（モーダルなので裏の画面はそのまま）
+  };
+
+  const handleSaveHotelDetails = (tripId, date, newHotelData) => {
+    setTrips(prevTrips => prevTrips.map(trip => {
+      if (trip.id === tripId) {
+        const newSchedules = (trip.schedules || []).map(schedule => {
+          if (schedule.date === date) {
+            return { ...schedule, hotel: { ...schedule.hotel, ...newHotelData } };
+          }
+          return schedule;
+        });
+        const updatedTrip = { ...trip, schedules: newSchedules };
+        if (selectedTrip && selectedTrip.id === tripId) {
+          setSelectedTrip(updatedTrip);
+        }
+        return updatedTrip;
+      }
+      return trip;
+    }));
+    setEditingHotelDetails(null);
+    alert('ホテル情報を更新しました。');
+  };
+
+  const handleCancelHotelDetailModal = () => {
+    setEditingHotelDetails(null);
+  };
+
   const handleRequestAICourse = (hotel, params) => {
     console.log('AIコース提案リクエスト:', { hotel, params });
     const dummyCourses = [
@@ -409,7 +440,8 @@ export const useAppLogic = () => {
     placeSearchContext, setPlaceSearchContext,
     aiRecommendedCourses, setAiRecommendedCourses,
     favoritePickerContext, setFavoritePickerContext,
-    editingPublishSettingsForTripId, // 追加
+    editingPublishSettingsForTripId, 
+    editingHotelDetails, // 追加
     handleShowPlanForm, handleShowTripDetail, handleSavePlan, handleCancelPlanForm, handleBackToList,
     handleRequestAIForTrip, handleShowPlaceSearchGeneral, handleShowPlaceSearchForPlanForm,
     handleShowPlaceSearchForEvent, handleSetHotelForDay, handleHotelSelectedForDay, newHandlePlaceSelected,
@@ -423,6 +455,7 @@ export const useAppLogic = () => {
     handleChangeEmailRequest, handleSendEmailConfirmation, handleSendPasswordResetLink,
     handleConfirmCodeAndSetNewPassword, handleShowMyProfile, handleShowFavoritePlaces,
     handleShowFavoritePickerForEvent, handleRequestAICourse,
-    handleShowPublishSettings, handleSavePublishSettings, handleCancelPublishSettings // 追加
+    handleShowPublishSettings, handleSavePublishSettings, handleCancelPublishSettings,
+    handleShowHotelDetailModal, handleSaveHotelDetails, handleCancelHotelDetailModal // 追加
   };
 };
