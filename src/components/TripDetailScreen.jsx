@@ -150,15 +150,25 @@ function TripDetailScreen({ trip, onBack, onEditPlanBasics, onRequestAI, onShowR
             <button onClick={() => setIsEditingStatus(true)} className="edit-status-button" style={{fontSize: '0.8em', padding: '4px 8px'}}>変更</button>
           )}
         </div>
+        {/* 公開設定UIの改善 */}
         {onTogglePublicStatus && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '10px' }}>
-            <input 
-              type="checkbox" 
-              id={`public-toggle-${trip.id}`} 
-              checked={trip.isPublic || false} 
-              onChange={() => onTogglePublicStatus(trip.id)} 
-            />
-            <label htmlFor={`public-toggle-${trip.id}`}>この旅程を公開する</label>
+          <div style={{ marginTop: '15px', padding: '10px', border: '1px solid #eee', borderRadius: '4px' }}>
+            <h4 style={{marginTop: 0, marginBottom: '5px'}}>公開設定</h4>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <input 
+                type="checkbox" 
+                id={`public-toggle-${trip.id}`} 
+                checked={trip.isPublic || false} 
+                onChange={() => onTogglePublicStatus(trip.id)} 
+              />
+              <label htmlFor={`public-toggle-${trip.id}`}>この旅程を他のユーザーに公開する</label>
+            </div>
+            {trip.isPublic && (
+              <p style={{fontSize: '0.8em', color: '#555', margin: '5px 0 0 0'}}>
+                公開すると、他のユーザーがこの旅程を検索・閲覧できるようになります。
+              </p>
+            )}
+            {/* TODO: Issue #62 - 公開範囲や公開情報の詳細設定UIをここに追加 */}
           </div>
         )}
       </div>
