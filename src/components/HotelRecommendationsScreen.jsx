@@ -3,18 +3,18 @@ import React, { useState, useEffect } from 'react';
 
 // ダミーの周辺スポットデータ
 const initialDummyNearbyPlaces = [
-  { id: 'nearby1', name: '美味しいラーメン屋「麺屋ホテル前」', category: '食事', distance: '徒歩3分', rating: 4.5, hours: '11:00 - 22:00', status: '営業中' },
-  { id: 'nearby2', name: '便利なコンビニ「エブリマート」', category: 'コンビニ', distance: '徒歩1分', rating: 4.0, hours: '24時間営業', status: '営業中' },
-  { id: 'nearby3', name: '歴史博物館', category: '観光', distance: 'バスで10分', rating: 4.2, hours: '09:00 - 17:00', status: '営業時間外' },
-  { id: 'nearby4', name: '駅前カフェ「ひとやすみ」', category: 'カフェ', distance: '徒歩5分', rating: 4.0, hours: '08:00 - 19:00', status: '営業中' },
-  { id: 'nearby5', name: 'おしゃれバル「月あかり」', category: '食事', distance: '徒歩7分', rating: 4.7, hours: '17:00 - 24:00', status: 'まもなく開店' },
-  { id: 'nearby6', name: '公園の売店', category: 'ショッピング', distance: '徒歩10分', rating: 3.5, hours: '10:00 - 16:00', status: '営業時間外' },
+  { id: 'nearby1', name: '美味しいラーメン屋「麺屋ホテル前」', category: '食事', distance: '徒歩3分', distanceMeters: 200, rating: 4.5, hours: '11:00 - 22:00', status: '営業中' },
+  { id: 'nearby2', name: '便利なコンビニ「エブリマート」', category: 'コンビニ', distance: '徒歩1分', distanceMeters: 50, rating: 4.0, hours: '24時間営業', status: '営業中' },
+  { id: 'nearby3', name: '歴史博物館', category: '観光', distance: 'バスで10分', distanceMeters: 1200, rating: 4.2, hours: '09:00 - 17:00', status: '営業時間外' },
+  { id: 'nearby4', name: '駅前カフェ「ひとやすみ」', category: 'カフェ', distance: '徒歩5分', distanceMeters: 400, rating: 4.0, hours: '08:00 - 19:00', status: '営業中' },
+  { id: 'nearby5', name: 'おしゃれバル「月あかり」', category: '食事', distance: '徒歩7分', distanceMeters: 550, rating: 4.7, hours: '17:00 - 24:00', status: 'まもなく開店' },
+  { id: 'nearby6', name: '公園の売店', category: 'ショッピング', distance: '徒歩10分', distanceMeters: 800, rating: 3.5, hours: '10:00 - 16:00', status: '営業時間外' },
 ];
 
 function HotelRecommendationsScreen({ hotel, onBack, onSelectPlace, onAICourseRequest, aiRecommendedCourses }) {
   const [filters, setFilters] = useState({
     category: 'all',
-    distance: 'any',
+    distance: 'any', // 'any', '500m', '1000m' (1km)
     rating: 0, 
     openNow: false, 
   });
@@ -30,10 +30,10 @@ function HotelRecommendationsScreen({ hotel, onBack, onSelectPlace, onAICourseRe
     if (filters.category !== 'all') {
       results = results.filter(p => p.category === filters.category);
     }
-    // TODO: 距離フィルターのロジック (checkDistance関数の実装が必要)
-    // if (filters.distance !== 'any') {
-    //   results = results.filter(p => checkDistance(p.distance, filters.distance));
-    // }
+    if (filters.distance !== 'any') {
+      const distanceLimit = parseInt(filters.distance); // '500m' -> 500
+      results = results.filter(p => p.distanceMeters <= distanceLimit);
+    }
     if (filters.rating > 0) {
       results = results.filter(p => p.rating >= filters.rating);
     }
@@ -90,8 +90,9 @@ function HotelRecommendationsScreen({ hotel, onBack, onSelectPlace, onAICourseRe
         </select>
         <select value={filters.distance} onChange={(e) => handleFilterChange('distance', e.target.value)}>
           <option value="any">距離指定なし</option>
-          <option value="徒歩5分圏内">徒歩5分圏内</option>
-          <option value="1km圏内">1km圏内</option>
+          <option value="500">500m以内</option>
+          <option value="1000">1km以内</option>
+          <option value="2000">2km以内</option>
         </select>
         <select value={filters.rating} onChange={(e) => handleFilterChange('rating', parseFloat(e.target.value))}>
           <option value="0">評価指定なし</option>
