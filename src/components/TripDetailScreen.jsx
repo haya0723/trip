@@ -89,7 +89,7 @@ function DailySchedule({ schedule, trip, onSelectTravelSegment, onAddMemoryForEv
   );
 }
 
-function TripDetailScreen({ trip, onBack, onEditPlanBasics, onRequestAI, onShowRouteOptions, onAddMemoryForEvent, onShowHotelRecommendations, onAddEventToDay, onViewOverallMemories, onChangeTripStatus, onSetHotelForDay, onTogglePublicStatus }) {
+function TripDetailScreen({ trip, onBack, onEditPlanBasics, onRequestAI, onShowRouteOptions, onAddMemoryForEvent, onShowHotelRecommendations, onAddEventToDay, onViewOverallMemories, onChangeTripStatus, onSetHotelForDay, onTogglePublicStatus, onCopyMyOwnTrip }) {
   const [selectedDate, setSelectedDate] = useState(null); 
   const [isEditingStatus, setIsEditingStatus] = useState(false);
 
@@ -121,7 +121,8 @@ function TripDetailScreen({ trip, onBack, onEditPlanBasics, onRequestAI, onShowR
       <header className="app-header">
         <h1>{trip.name}</h1>
         <div>
-          <button onClick={() => onEditPlanBasics(trip)} className="edit-plan-basics-button">基本情報編集</button>
+          {onCopyMyOwnTrip && <button onClick={() => onCopyMyOwnTrip(trip)} className="action-button" style={{marginRight: '10px'}}>この計画をコピー</button>}
+          <button onClick={() => onEditPlanBasics(trip)} className="edit-plan-basics-button" style={{marginRight: '10px'}}>基本情報編集</button>
           <button onClick={onBack} className="back-button">一覧へ戻る</button>
         </div>
       </header>

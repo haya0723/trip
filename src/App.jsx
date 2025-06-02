@@ -44,7 +44,7 @@ function App() {
     editingEventDetails,
     placeSearchContext,
     aiRecommendedCourses,
-    favoritePickerContext, setFavoritePickerContext, // setFavoritePickerContextも取得
+    favoritePickerContext, setFavoritePickerContext,
     handleShowPlanForm, handleShowTripDetail, handleSavePlan, handleCancelPlanForm, handleBackToList,
     handleRequestAIForTrip, handleShowPlaceSearchGeneral, handleShowPlaceSearchForPlanForm,
     handleShowPlaceSearchForEvent, handleSetHotelForDay, newHandlePlaceSelected,
