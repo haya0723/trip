@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 
 const eventCategories = ['観光', '食事', '移動', '宿泊', 'アクティビティ', 'ショッピング', 'その他'];
 
-function EventFormScreen({ date, existingEvent, onSaveEvent, onCancel, onShowPlaceSearch }) {
+function EventFormScreen({ date, existingEvent, onSaveEvent, onCancel, onShowPlaceSearch, onShowFavoritePicker }) {
   const [time, setTime] = useState('');
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState(eventCategories[0]);
@@ -21,7 +21,7 @@ function EventFormScreen({ date, existingEvent, onSaveEvent, onCancel, onShowPla
       setEstimatedDurationMinutes(existingEvent.estimatedDurationMinutes || '');
     } else {
       // 新規作成時はフォームをリセット（またはデフォルト値を設定）
-      setTime('');
+      setTime('10:00'); // デフォルト時刻
       setTitle('');
       setCategory(eventCategories[0]);
       setLocation(null);
@@ -34,33 +34,38 @@ function EventFormScreen({ date, existingEvent, onSaveEvent, onCancel, onShowPla
     e.preventDefault();
     const eventData = {
       time,
-      name: title, // TripDetailScreen の event.name に合わせる
-      type: category.toLowerCase(), // 仮にカテゴリを type としても使う
+      name: title, 
+      type: category.toLowerCase(), 
       category,
       description,
       estimatedDurationMinutes: estimatedDurationMinutes ? parseInt(estimatedDurationMinutes, 10) : undefined,
-      details: location, // 場所情報を details に格納
-      // id: existingEvent ? existingEvent.id : Date.now(), // IDはApp側で振るか、既存なら維持
+      details: location, 
     };
-    onSaveEvent(date, eventData, existingEvent); // 既存イベント情報も渡して更新か新規かを判断
+    onSaveEvent(date, eventData, existingEvent); 
   };
   
-  // 場所検索から戻ってきたときに場所情報を設定するコールバック
-  // App.jsx 側でこのコンポーネントに渡す selectedPlaceFromSearch のような props を経由して呼び出す想定
-  // 今回は直接 onShowPlaceSearch を呼び、戻り値で場所を設定する単純な形は取れないため、
-  // App.jsx 側での状態管理と props 経由での場所情報注入が必要。
-  // ここではダミーの場所選択ボタンを配置する。
-  const handleSelectPlace = () => {
-    // onShowPlaceSearch を呼び出し、場所検索画面に遷移する
-    // 選択結果は App.jsx 経由でこのフォームに渡される想定
+  const handleSelectPlaceFromSearch = () => {
     onShowPlaceSearch((selectedPlace) => {
-      setLocation(selectedPlace); // 例: { name: '東京タワー', address: '東京都港区芝公園４丁目２−８' }
+      setLocation(selectedPlace); 
     });
   };
 
+  const handleSelectPlaceFromFavorite = () => {
+    if (onShowFavoritePicker) {
+      onShowFavoritePicker((selectedPlace) => {
+        // お気に入りから選択された場所情報で location state を更新
+        // お気に入りデータは name, address, category などを持つ想定
+        setLocation({ 
+          name: selectedPlace.name, 
+          address: selectedPlace.address || '', 
+          // 必要に応じて他の情報もコピー
+        });
+      });
+    }
+  };
 
   return (
-    <div className="event-form-screen auth-screen"> {/* auth-screenのスタイルを流用 */}
+    <div className="event-form-screen auth-screen"> 
       <header className="app-header">
         <h1>{existingEvent ? '予定の編集' : '新しい予定の追加'} - {date}</h1>
         <button onClick={onCancel} className="cancel-button">キャンセル</button>
@@ -85,21 +90,22 @@ function EventFormScreen({ date, existingEvent, onSaveEvent, onCancel, onShowPla
         </div>
 
         <div className="form-section">
-          <label htmlFor="event-location-display">場所:</label> {/* htmlFor を修正 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <label htmlFor="event-location-display">場所:</label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
             <input 
               type="text" 
               id="event-location-display" 
               value={location ? location.name : ''} 
               onChange={(e) => {
-                // 手入力された場合は、name のみを更新し、他の詳細情報はクリアする（または保持する戦略も可）
-                setLocation(prevLocation => ({ ...prevLocation, name: e.target.value, address: '', lat: undefined, lng: undefined }));
+                setLocation(prevLocation => ({ ...(prevLocation || {}), name: e.target.value }));
               }}
-              onClick={() => { /* readOnlyではないので、クリックで検索画面に遷移する動作はボタンに集約 */ }}
-              placeholder="場所名を入力または検索"
+              placeholder="場所名を入力または選択"
               style={{ flexGrow: 1 }}
             />
-            <button type="button" onClick={handleSelectPlace} className="search-destination-button" style={{flexShrink: 0}}>検索</button>
+            <button type="button" onClick={handleSelectPlaceFromSearch} className="action-button-secondary" style={{flexShrink: 0}}>検索</button>
+            {onShowFavoritePicker && 
+              <button type="button" onClick={handleSelectPlaceFromFavorite} className="action-button-secondary" style={{flexShrink: 0}}>お気に入りから</button>
+            }
           </div>
           {location && location.address && <p style={{fontSize: '0.8em', color: '#555', margin: '5px 0 0 0'}}>{location.address}</p>}
         </div>

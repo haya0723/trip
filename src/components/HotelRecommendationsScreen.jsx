@@ -201,10 +201,23 @@ function HotelRecommendationsScreen({ hotel, onBack, onSelectPlace, onAICourseRe
               <p><strong>主なスポット:</strong></p>
               <ul>
                 {course.spots.map((spot, idx) => (
-                  <li key={idx}>{spot.name} (滞在目安: {spot.time})</li>
+                  <li key={idx}>
+                    {spot.name} (滞在目安: {spot.time})
+                    {/* <button onClick={() => onSelectPlace(spot)} style={{fontSize: '0.7em', marginLeft: '5px', padding: '2px 4px'}}>詳細</button> */}
+                  </li>
                 ))}
               </ul>
-              {/* TODO: 地図表示ボタン、旅程に追加ボタン */}
+              <button 
+                onClick={() => {
+                  console.log('「このコースを旅程に追加」がクリックされました:', course);
+                  alert(`コース「${course.name}」を旅程に追加する処理は未実装です。`);
+                }}
+                className="action-button"
+                style={{marginTop: '10px', fontSize: '0.9em', padding: '6px 10px'}}
+              >
+                このコースを旅程に追加
+              </button>
+              {/* TODO: 地図表示ボタン */}
             </div>
           ))}
         </div>
