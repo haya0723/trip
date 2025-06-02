@@ -40,7 +40,7 @@ function PublicTripDetailScreen({ publicTripData, onBack, onCopyToMyPlans }) {
     setShowEventDetailModal(true);
   };
   
-  const { title, author, destinations, duration, coverImage, tags, description, estimatedCost, schedules, comments, rating, copiedCount } = publicTripData;
+  const { title, author, destinations, duration, coverImage, tags, description, estimatedCost, schedules, comments, rating, copiedCount, overallAuthorComment } = publicTripData; // overallAuthorComment を追加
 
   return (
     <div className="public-trip-detail-screen">
@@ -61,6 +61,7 @@ function PublicTripDetailScreen({ publicTripData, onBack, onCopyToMyPlans }) {
           <p><strong>期間:</strong> {duration}</p>
           {tags && tags.length > 0 && <p><strong>タグ:</strong> {tags.map(tag => <span key={tag} className="tag" style={{fontSize: '0.9em', background: '#eee', padding: '2px 6px', borderRadius: '3px', marginRight: '5px'}}>#{tag}</span>)}</p>}
           {description && <p><strong>概要:</strong> {description}</p>}
+          {overallAuthorComment && <p style={{marginTop: '10px', fontStyle: 'italic', background: '#f0f8ff', padding: '10px', borderRadius: '4px'}}><strong>作成者のコメント:</strong> {overallAuthorComment}</p>}
           {estimatedCost && <p><strong>概算費用:</strong> {estimatedCost}</p>}
           {rating && <p><strong>評価:</strong> {rating}★ | <strong>コピーされた回数:</strong> {copiedCount || 0}</p>}
         </div>

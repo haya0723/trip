@@ -7,9 +7,80 @@ const dummyDailySchedulesForTrip1 = [
 ];
 const initialDummyTrips = [
   { id: 1, name: '夏の北海道旅行2024', period: '2024/08/10 - 2024/08/15 (5泊6日)', destinations: '札幌、小樽、富良野', status: '計画中', coverImage: 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?q=80&w=1000&auto=format&fit=crop', schedules: dummyDailySchedulesForTrip1, overallMemory: { notes: "全体的に素晴らしい旅行だった。", rating: 5, photos: [], videos: [] }, isPublic: false },
-  { id: 2, name: '京都紅葉狩り', period: '2023/11/20 - 2023/11/23 (3泊4日)', destinations: '京都', status: '完了', coverImage: 'https://images.unsplash.com/photo-1534564737930-39a482142209?q=80&w=1000&auto=format&fit=crop', schedules: [], overallMemory: null, isPublic: true, publicDescription: "紅葉シーズンの京都は最高でした！特に清水寺のライトアップは必見です。", publicTags: ["紅葉", "京都", "寺社仏閣"] },
+  { id: 2, name: '京都紅葉狩り', period: '2023/11/20 - 2023/11/23 (3泊4日)', destinations: '京都', status: '完了', coverImage: 'https://images.unsplash.com/photo-1534564737930-39a482142209?q=80&w=1000&auto=format&fit=crop', schedules: [], overallMemory: null, isPublic: true, publicDescription: "紅葉シーズンの京都は最高でした！特に清水寺のライトアップは必見です。", publicTags: ["紅葉", "京都", "寺社仏閣"], overallAuthorComment: "清水寺のライトアップは本当に幻想的でした。人も多かったですが、それだけの価値はあります。食事は先斗町で京料理をいただきましたが、こちらもおすすめです。" },
   { id: 3, name: '沖縄リゾート満喫', period: '2024/07/01 - 2024/07/05 (4泊5日)', destinations: '那覇、恩納村', status: '予約済み', coverImage: null, schedules: [], overallMemory: null, isPublic: false },
 ];
+
+// PublicTripsSearchScreen.jsx からダミーデータを移動
+export const initialDummyPublicTrips = [
+  { 
+    id: 'pub1', 
+    title: '週末行く！東京下町グルメ旅', 
+    author: '旅好き太郎', 
+    destinations: ['浅草', '月島'], 
+    duration: '1泊2日', 
+    durationDays: 2, 
+    coverImage: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=1000&auto=format&fit=crop', 
+    tags: ['グルメ', '下町'], 
+    rating: 4.5, 
+    copiedCount: 120, 
+    createdAt: '2024-05-15T10:00:00Z', 
+    description: '浅草の雷門や仲見世通りを散策し、月島でもんじゃ焼きを堪能するグルメ旅。思い出の写真もたくさん！',
+    overallAuthorComment: "浅草と月島、どちらも食べ歩きが楽しい最高のエリアでした！特に月島のもんじゃは種類が豊富で選ぶのも一苦労（笑）また行きたいです。",
+    schedules: [
+      { 
+        date: '2024-07-20', 
+        dayDescription: '浅草満喫デー',
+        events: [
+          { time: '10:00', name: '雷門・仲見世通り散策', category: '観光', description: '定番スポットをぶらり。人形焼もゲット。', locationDetails: { name: '雷門', address: '東京都台東区浅草２丁目３−１' }, publicPhotos: ['https://images.unsplash.com/photo-1580130379628-f009b3170699?q=80&w=400'], publicNotes: 'すごい人だったけど、活気があって楽しかった！' },
+          { time: '12:30', name: '昼食：天丼', category: '食事', description: '老舗の天丼屋さん「大黒家天麩羅」へ。', locationDetails: { name: '大黒家天麩羅', address: '東京都台東区浅草１丁目３８−１０' }, publicPhotos: [], publicNotes: '海老が大きくて美味しかった。少し並んだけど価値あり。' },
+          { time: '14:30', name: '浅草寺参拝', category: '観光', description: 'お線香をあげてお参り。', locationDetails: { name: '浅草寺', address: '東京都台東区浅草２丁目３−１' }, publicPhotos: [], publicNotes: null },
+          { time: '16:00', name: '月島へ移動', category: '移動', description: '電車で移動。', locationDetails: null, publicPhotos: [], publicNotes: null },
+          { time: '17:00', name: '夕食：もんじゃ焼き', category: '食事', description: '月島もんじゃストリートで「もへじ」へ。', locationDetails: { name: '月島もんじゃ もへじ', address: '東京都中央区月島３丁目１６−２' }, publicPhotos: ['https://images.unsplash.com/photo-1604019613188-40900604750a?q=80&w=400'], publicNotes: '明太もちチーズもんじゃが最高！お店の人が焼いてくれた。' },
+        ]
+      },
+      {
+        date: '2024-07-21',
+        dayDescription: '月島散策と帰路',
+        events: [
+          { time: '10:00', name: '月島界隈散策', category: '観光', description: 'レトロな街並みを楽しむ。', locationDetails: { name: '月島西仲通り商店街', address: '東京都中央区月島' }, publicPhotos: [], publicNotes: '朝の静かな月島も良い雰囲気。' },
+          { time: '12:00', name: '昼食：海鮮丼', category: '食事', description: '佃の「かねます」で海鮮丼。', locationDetails: { name: 'かねます', address: '東京都中央区佃１丁目１１−８' }, publicPhotos: [], publicNotes: '新鮮で美味しかった！' },
+        ]
+      }
+    ]
+  },
+  { 
+    id: 'pub2', 
+    title: '絶景！富士山一周ドライブ', 
+    author: '山ガール花子', 
+    destinations: ['富士五湖', '御殿場'], 
+    duration: '日帰り', 
+    durationDays: 1, 
+    coverImage: 'https://images.unsplash.com/photo-1500964757637-c85e8a162699?q=80&w=1000&auto=format&fit=crop', 
+    tags: ['絶景', 'ドライブ', '自然'], 
+    rating: 4.8, 
+    copiedCount: 250, 
+    createdAt: '2024-04-20T14:30:00Z', 
+    description: '富士山の周りをドライブし、各地の絶景ポイントや温泉を楽しむ日帰りプラン。最高の景色に癒されました。',
+    overallAuthorComment: "富士山はどこから見ても本当に美しい！特に早朝の河口湖からの眺めは格別でした。白糸の滝も迫力満点でおすすめです。",
+    schedules: [
+      {
+        date: '2024-08-05',
+        dayDescription: '富士山一周',
+        events: [
+          { time: '09:00', name: '河口湖出発', category: '移動', description: '時計回りに一周開始！', locationDetails: { name: '河口湖駅', address: '山梨県南都留郡富士河口湖町船津３６４１' }, publicPhotos: [], publicNotes: null },
+          { time: '10:00', name: '忍野八海', category: '観光', description: '湧水の池が美しい。', locationDetails: { name: '忍野八海', address: '山梨県南都留郡忍野村忍草' }, publicPhotos: ['https://images.unsplash.com/photo-1528164344705-47542687000d?q=80&w=400'], publicNotes: '水が本当に綺麗で感動。' },
+          { time: '12:00', name: '昼食：ほうとう', category: '食事', description: '山梨名物ほうとうを「小作」で。', locationDetails: { name: '小作 河口湖店', address: '山梨県南都留郡富士河口湖町船津１６３８−１' }, publicPhotos: [], publicNotes: '野菜たっぷりで温まる。' },
+          { time: '14:00', name: '白糸の滝', category: '観光', description: 'マイナスイオンたっぷり。', locationDetails: { name: '白糸の滝', address: '静岡県富士宮市上井出' }, publicPhotos: [], publicNotes: '思ったより規模が大きくて迫力があった。' },
+          { time: '16:00', name: '御殿場プレミアム・アウトレット', category: 'ショッピング', description: '少しだけお買い物。', locationDetails: { name: '御殿場プレミアム・アウトレット', address: '静岡県御殿場市深沢１３１２' }, publicPhotos: [], publicNotes: '富士山が見えるアウトレットは最高！' },
+        ]
+      }
+    ]
+  },
+  { id: 'pub3', title: '北海道大自然満喫（夏）', author: 'アウトドア好き', destinations: ['富良野', '美瑛', '旭川'], duration: '4泊5日', durationDays: 5, coverImage: 'https://images.unsplash.com/photo-1536009098083-d4f520d07093?q=80&w=400', tags: ['絶景', '自然', '動物園'], rating: 4.2, copiedCount: 80, createdAt: '2023-07-10T09:00:00Z', description: '夏の北海道でラベンダー畑や青い池を巡り、旭山動物園も楽しむ大自然満喫の旅。', overallAuthorComment: "ラベンダーの香りに癒されました。美瑛の丘の景色は絵葉書のよう。旭山動物園の行動展示も面白かったです。", schedules: [] },
+  { id: 'pub4', title: '古都鎌倉・江ノ島歴史散歩', author: '歴史マニア', destinations: ['鎌倉', '江ノ島'], duration: '日帰り', durationDays: 1, coverImage: 'https://images.unsplash.com/photo-1615861030057-c49053879993?q=80&w=400', tags: ['歴史', '寺社仏閣', '海'], rating: 4.0, copiedCount: 95, createdAt: '2024-03-01T11:00:00Z', description: '鎌倉の大仏や鶴岡八幡宮を訪れ、江ノ島まで足を延ばす歴史と自然を感じる散歩コース。', overallAuthorComment: "鎌倉は何度行っても新しい発見があります。江ノ島の夕日も綺麗でした。", schedules: [] },
+];
+
 
 export const useAppLogic = () => {
   const [currentScreen, setCurrentScreen] = useState('tripList');
