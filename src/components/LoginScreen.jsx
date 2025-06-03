@@ -4,8 +4,8 @@ import React, { useState } from 'react';
 function LoginScreen({ onLogin, onNavigateToSignup, onForgotPassword }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(true);
-  const [errors, setErrors] = useState({}); // エラー状態をオブジェクトに変更
+  const [rememberMe, setRememberMe] = useState(true); // rememberMe はUI上残すが、APIには送らない
+  const [errors, setErrors] = useState({});
 
   const validateForm = () => {
     const newErrors = {};
@@ -18,17 +18,15 @@ function LoginScreen({ onLogin, onNavigateToSignup, onForgotPassword }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!validateForm()) {
+    console.log('[LoginScreen] handleSubmit called'); 
+    const isValid = validateForm();
+    console.log('[LoginScreen] Validation result:', isValid); 
+    if (!isValid) {
       return;
     }
-    
-    // ダミーログイン処理
-    console.log('ログイン試行:', { email, password, rememberMe });
-    if (email === 'satake.hayata@tbs.co.jp' && password === 'test') {
-       onLogin({ email, name: 'テストユーザー', rememberMe }); 
-    } else {
-      setErrors({ form: 'メールアドレスまたはパスワードが正しくありません。' });
-    }
+    // 実際のログイン処理を呼び出す
+    console.log('ログイン試行 (handleSubmit in LoginScreen.jsx):', { email, password });
+    onLogin({ email, password }); // email と password のみ渡す
   };
 
   return (
@@ -38,7 +36,7 @@ function LoginScreen({ onLogin, onNavigateToSignup, onForgotPassword }) {
       </header>
 
       <form onSubmit={handleSubmit} className="auth-form">
-        {errors.form && <p className="error-message">{errors.form}</p>}
+        {/* フォーム全体のエラーメッセージ表示は削除 */}
         <div className="form-section">
           <label htmlFor="email">メールアドレス</label>
           <input

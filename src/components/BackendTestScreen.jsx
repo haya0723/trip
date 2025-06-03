@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const BACKEND_URL = 'https://trip-backend-service-493005991008.asia-northeast1.run.app';
+const BACKEND_URL = 'https://trip-app-final-v2-493005991008.asia-northeast1.run.app'; // 正しいURLに修正
 
 function BackendTestScreen({ onBack }) {
   const [healthResult, setHealthResult] = useState('');
