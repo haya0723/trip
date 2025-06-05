@@ -1,28 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios'; // axios をインポート
+import axios from 'axios'; 
 
-// バックエンドAPIのベースURL
-const BACKEND_URL = 'https://trip-app-final-v2-493005991008.asia-northeast1.run.app';
+const BACKEND_URL = 'https://trip-app-final-v2-493005991008.asia-northeast1.run.app'; 
 
-// ダミーデータ (初期表示用、API連携後は削除または置き換え)
-const dummyDailySchedulesForTrip1 = [
-  { date: '2024-08-10', dayDescription: '移動と札幌市内観光', hotel: { name: '札幌グランドホテル', address: '札幌市中央区北1条西4丁目', checkIn: '15:00', checkOut: '11:00', notes: '予約番号: XYZ123' }, events: [ { id: 'evt1-1', time: '14:00', type: 'travel', name: '新千歳空港から札幌市内へ移動', description: 'JR快速エアポート', estimatedDurationMinutes: 40, category: '移動', memory: null }, { id: 'evt1-2', time: '15:00', type: 'hotel_checkin', name: '札幌グランドホテル', description: 'チェックイン', estimatedDurationMinutes: 60, category: '宿泊', details: { address: '札幌市中央区北1条西4丁目', isHotel: true }, memory: null }, { id: 'evt1-3', time: '16:30', type: 'activity', name: '大通公園散策', description: 'テレビ塔や花時計を見る', estimatedDurationMinutes: 90, category: '観光', details: { address: '札幌市中央区大通西1～12丁目' }, memory: { notes: "楽しかった！", rating: 4, photos: ["https://via.placeholder.com/150/FF0000/FFFFFF?Text=DummyMem1"], videos: ["dummy_video.mp4"] } } , { id: 'evt1-4', time: '18:30', type: 'meal', name: '夕食：ジンギスカン', description: 'だるま 本店', estimatedDurationMinutes: 90, category: '食事', details: { address: '札幌市中央区南5条西4' }, memory: null }, ] },
-  { date: '2024-08-11', dayDescription: '小樽観光', hotel: { name: '札幌グランドホテル', address: '札幌市中央区北1条西4丁目', checkIn: '15:00', checkOut: '11:00', notes: '連泊' }, events: [ { id: 'evt1-5', time: '09:00', type: 'travel', name: '札幌から小樽へ移動', description: 'JR函館本線', estimatedDurationMinutes: 50, category: '移動', memory: null }, { id: 'evt1-6', time: '10:00', type: 'activity', name: '小樽運河クルーズ', description: '歴史的な運河を巡る', estimatedDurationMinutes: 40, category: '観光', details: { address: '小樽市港町５' }, memory: null }, ] },
-  { date: '2024-08-12', dayDescription: '富良野日帰り', hotel: null, events: []}
-];
-const initialDummyTrips = [
-  { id: 1, name: '夏の北海道旅行2024', period: '2024/08/10 - 2024/08/15 (5泊6日)', destinations: '札幌、小樽、富良野', status: '計画中', coverImage: 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?q=80&w=1000&auto=format&fit=crop', schedules: dummyDailySchedulesForTrip1, overallMemory: { notes: "全体的に素晴らしい旅行だった。", rating: 5, photos: [], videos: [] }, isPublic: false },
-  { id: 2, name: '京都紅葉狩り', period: '2023/11/20 - 2023/11/23 (3泊4日)', destinations: '京都', status: '完了', coverImage: 'https://images.unsplash.com/photo-1534564737930-39a482142209?q=80&w=1000&auto=format&fit=crop', schedules: [], overallMemory: null, isPublic: true, publicDescription: "紅葉シーズンの京都は最高でした！特に清水寺のライトアップは必見です。", publicTags: ["紅葉", "京都", "寺社仏閣"], overallAuthorComment: "清水寺のライトアップは本当に幻想的でした。人も多かったですが、それだけの価値はあります。食事は先斗町で京料理をいただきましたが、こちらもおすすめです。" },
-  { id: 3, name: '沖縄リゾート満喫', period: '2024/07/01 - 2024/07/05 (4泊5日)', destinations: '那覇、恩納村', status: '予約済み', coverImage: null, schedules: [], overallMemory: null, isPublic: false },
-];
-export const initialDummyPublicTrips = [ /* ... (内容は省略、以前のコードからコピー) ... */ ];
+export const initialDummyPublicTrips = [ /* ... */ ]; 
 
 
 export const useAppLogic = () => {
+  console.log('[useAppLogic] useAppLogic hook called - TOP LEVEL');
   const [currentScreen, setCurrentScreen] = useState('login');
-  const [editingPlan, setEditingPlan] = useState(null);
+  const [editingPlan, setEditingPlan] = useState(null); // For Trip editing
   const [selectedTrip, setSelectedTrip] = useState(null);
-  const [selectedPlaceDetail, setSelectedPlaceDetail] = useState(null);
+  const [selectedPlaceDetail, setSelectedPlaceDetail] = useState(null); // ★定義を追加
   const [currentRouteQuery, setCurrentRouteQuery] = useState(null);
   const [editingMemoryForEvent, setEditingMemoryForEvent] = useState(null);
   const [viewingMemoriesForTripId, setViewingMemoriesForTripId] = useState(null);
@@ -32,34 +21,112 @@ export const useAppLogic = () => {
     nickname: '', bio: '', avatarUrl: '', favoritePlaces: []
   });
   const [currentUser, setCurrentUser] = useState(null);
-  const [trips, setTrips] = useState(initialDummyTrips);
+  const [trips, setTrips] = useState([]); 
   const [editingEventDetails, setEditingEventDetails] = useState(null);
   const [placeSearchContext, setPlaceSearchContext] = useState(null);
   const [aiRecommendedCourses, setAiRecommendedCourses] = useState([]);
   const [favoritePickerContext, setFavoritePickerContext] = useState(null);
   const [editingPublishSettingsForTripId, setEditingPublishSettingsForTripId] = useState(null);
   const [editingHotelDetails, setEditingHotelDetails] = useState(null);
+  const [editingScheduleForTripId, setEditingScheduleForTripId] = useState(null); 
+  const [editingScheduleData, setEditingScheduleData] = useState(null); 
+
+  const fetchUserProfile = async (userId, token) => {
+    console.log(`[useAppLogic] fetchUserProfile called for userId: ${userId}`);
+    try {
+      const response = await axios.get(`${BACKEND_URL}/api/users/profile`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      console.log('[useAppLogic] fetchUserProfile - API response.data:', response.data);
+      setUserProfile(response.data);
+      console.log('[useAppLogic] fetchUserProfile - userProfile state should be updated.');
+    } catch (error) {
+      console.error('Failed to fetch user profile:', error.response ? error.response.data : error.message);
+    }
+  };
+
+  const fetchMyTrips = async (token) => {
+    if (!token) {
+      console.log('[useAppLogic] fetchMyTrips - No token, skipping fetch.');
+      setTrips([]); 
+      return;
+    }
+    console.log('[useAppLogic] fetchMyTrips called.');
+    try {
+      const response = await axios.get(`${BACKEND_URL}/api/trips`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      console.log('[useAppLogic] fetchMyTrips - API response.data:', response.data);
+      const fetchedTrips = response.data || [];
+      const validTrips = fetchedTrips.filter(trip => trip !== null && trip !== undefined);
+      setTrips(validTrips);
+      console.log('[useAppLogic] fetchMyTrips - trips state should be updated with valid trips.');
+    } catch (error) {
+      console.error('Failed to fetch trips:', error.response ? error.response.data : error.message);
+      setTrips([]); 
+    }
+  };
 
   useEffect(() => {
+    console.log('[useAppLogic] Initial useEffect triggered.');
     const storedToken = localStorage.getItem('authToken');
     const storedUser = localStorage.getItem('authUser');
     if (storedToken && storedUser) {
-      setCurrentUser({ ...JSON.parse(storedUser), token: storedToken });
-      setCurrentScreen('tripList');
+      try {
+        const userData = JSON.parse(storedUser);
+        const fullCurrentUser = { ...userData, token: storedToken };
+        setCurrentUser(fullCurrentUser); 
+      } catch (e) {
+        console.error('[useAppLogic] Initial useEffect - Error parsing storedUser:', e);
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('authUser');
+        setCurrentUser(null);
+        setCurrentScreen('login');
+      }
+    } else {
+      setCurrentUser(null);
+      setCurrentScreen('login'); 
     }
   }, []);
 
   useEffect(() => {
+    if (currentUser && currentUser.id && currentUser.token) {
+      console.log('[useAppLogic] currentUser changed, fetching profile and trips. User ID:', currentUser.id);
+      (async () => {
+        await fetchUserProfile(currentUser.id, currentUser.token);
+        await fetchMyTrips(currentUser.token); 
+      })();
+    } else {
+      setTrips([]);
+      setUserProfile({ nickname: '', bio: '', avatarUrl: '', favoritePlaces: [] }); 
+    }
+  }, [currentUser]); 
+
+  useEffect(() => {
+    console.log('[useAppLogic] Auth/Screen effect triggered. currentUser:', currentUser ? 'present' : 'absent', 'currentScreen:', currentScreen);
     const authScreens = ['login', 'signup', 'passwordReset', 'accountDeletionConfirm'];
-    if (!currentUser && !authScreens.includes(currentScreen)) { setCurrentScreen('login'); }
-    else if (currentUser && authScreens.includes(currentScreen) && currentScreen !== 'accountDeletionConfirm') { setCurrentScreen('tripList'); }
+    if (!currentUser && !authScreens.includes(currentScreen)) { 
+      console.log('[useAppLogic] No currentUser and not on auth screen, redirecting to login.');
+      setCurrentScreen('login'); 
+    }
+    else if (currentUser && authScreens.includes(currentScreen) && currentScreen !== 'accountDeletionConfirm') { 
+      console.log('[useAppLogic] currentUser exists and on auth screen (not deletion), redirecting to tripList.');
+      setCurrentScreen('tripList'); 
+    }
   }, [currentUser, currentScreen]);
+  
+  useEffect(() => {
+    if (currentScreen === 'tripList' && currentUser && currentUser.token) {
+      console.log('[useAppLogic] Navigated to tripList, fetching trips.');
+      fetchMyTrips(currentUser.token);
+    }
+  }, [currentScreen, currentUser?.token]);
 
   const handleSignup = async (signupData) => {
     console.log(`Attempting signup to: ${BACKEND_URL}/api/auth/signup with data:`, signupData);
     try {
-      const { nickname, email, password } = signupData; // 必要なデータを取り出す
-      const response = await axios.post(`${BACKEND_URL}/api/auth/signup`, { nickname, email, password }); // 必要なデータのみ送信
+      const { nickname, email, password } = signupData; 
+      await axios.post(`${BACKEND_URL}/api/auth/signup`, { nickname, email, password }); 
       alert('ユーザー登録が完了しました。ログインしてください。');
       setCurrentScreen('login');
     } catch (error) {
@@ -71,18 +138,22 @@ export const useAppLogic = () => {
   const handleLogin = async (loginData) => {
     console.log(`Attempting login to: ${BACKEND_URL}/api/auth/login with data:`, loginData);
     try {
-      // loginDataからemailとpasswordを明示的に取り出して送信
       const response = await axios.post(`${BACKEND_URL}/api/auth/login`, { 
         email: loginData.email, 
         password: loginData.password 
       });
-      const { token, user } = response.data;
-      setCurrentUser({ id: user.id, nickname: user.nickname, email: user.email, token });
-      setUserProfile(prev => ({...prev, nickname: user.nickname, email: user.email }));
-      localStorage.setItem('authToken', token);
-      localStorage.setItem('authUser', JSON.stringify({id: user.id, nickname: user.nickname, email: user.email }));
-      setCurrentScreen('tripList');
-    } catch (error) {
+      console.log('[useAppLogic] handleLogin - Login API response received. response.data:', response.data); 
+      if (response.data && response.data.token && response.data.user) {
+        const { token, user } = response.data;
+        const fullCurrentUser = { id: user.id, nickname: user.nickname, email: user.email, token };
+        setCurrentUser(fullCurrentUser); 
+        localStorage.setItem('authToken', token);
+        localStorage.setItem('authUser', JSON.stringify({id: user.id, nickname: user.nickname, email: user.email }));
+      } else { 
+        console.error('[useAppLogic] handleLogin - Invalid response structure from login API:', response.data);
+        alert('ログインレスポンスの形式が不正です。');
+      }
+    } catch (error) { 
       console.error('Login failed:', error.response ? error.response.data : error.message);
       alert(`ログインに失敗しました: ${error.response?.data?.error || error.message}`);
     }
@@ -90,20 +161,95 @@ export const useAppLogic = () => {
 
   const handleLogout = () => {
     if (window.confirm('本当にログアウトしますか？')) {
+      console.log('[useAppLogic] handleLogout - Logging out.');
       setCurrentUser(null);
       localStorage.removeItem('authToken');
       localStorage.removeItem('authUser');
-      setCurrentScreen('login');
+      console.log('[useAppLogic] handleLogout - Cleared localStorage items. Screen will be set to login by effect.');
     }
   };
 
-  // 他のハンドラ関数 (内容は以前のコードからコピー)
+  const handleShowProfileEdit = () => setCurrentScreen('profileEdit');
+
+  const handleSaveProfile = async (profileDataToUpdate, avatarFile = null) => {
+    console.log('[useAppLogic] handleSaveProfile called. profileDataToUpdate:', profileDataToUpdate, 'avatarFile:', avatarFile);
+    if (!currentUser || !currentUser.token) { alert('ログインしていません。'); setCurrentScreen('login'); return; }
+    let finalAvatarUrl = profileDataToUpdate.avatarUrl; 
+    if (avatarFile === null && profileDataToUpdate.avatarUrl === undefined) { finalAvatarUrl = userProfile.avatarUrl; }
+    try {
+      if (avatarFile) { 
+        const formData = new FormData(); formData.append('avatar', avatarFile);
+        const uploadResponse = await axios.post(`${BACKEND_URL}/api/upload/avatar`, formData, { headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${currentUser.token}`}});
+        finalAvatarUrl = uploadResponse.data.avatarUrl;
+      }
+      const payload = { nickname: profileDataToUpdate.nickname, bio: profileDataToUpdate.bio, avatarUrl: finalAvatarUrl };
+      Object.keys(payload).forEach(key => payload[key] === undefined && delete payload[key]);
+      const response = await axios.put(`${BACKEND_URL}/api/users/profile`, payload, { headers: { Authorization: `Bearer ${currentUser.token}` } });
+      const updatedProfileFromServer = response.data;
+      setUserProfile(updatedProfileFromServer); 
+      setCurrentUser(prev => ({ ...prev, nickname: updatedProfileFromServer.nickname }));
+      const storedUser = JSON.parse(localStorage.getItem('authUser'));
+      if (storedUser) { localStorage.setItem('authUser', JSON.stringify({ ...storedUser, nickname: updatedProfileFromServer.nickname })); }
+      alert('プロフィールを更新しました。');
+      setCurrentScreen('myProfile');
+    } catch (error) { console.error('Failed to save profile:', error.response?.data?.error || error.message); alert(`プロフィールの更新に失敗しました: ${error.response?.data?.error || error.message}`);}
+  };
+  
   const handleShowPlanForm = (planToEdit = null) => { setCurrentScreen('planForm'); setEditingPlan(planToEdit); setSelectedTrip(null); };
   const handleShowTripDetail = (trip) => { setSelectedTrip(trip); setCurrentScreen('tripDetail'); };
-  const handleSavePlan = (planData) => { /* ... */ };
+  
+  const handleSavePlan = async (planData) => { 
+    if (!currentUser || !currentUser.token) { alert('ログインしていません。'); return; }
+    try {
+      if (editingPlan && editingPlan.id) { 
+        await axios.put(`${BACKEND_URL}/api/trips/${editingPlan.id}`, planData, { headers: { Authorization: `Bearer ${currentUser.token}` } });
+      } else { 
+        await axios.post(`${BACKEND_URL}/api/trips`, planData, { headers: { Authorization: `Bearer ${currentUser.token}` } });
+      }
+      await fetchMyTrips(currentUser.token); 
+      setCurrentScreen('tripList');
+      setEditingPlan(null);
+    } catch (error) { console.error('Failed to save plan:', error.response?.data?.error || error.message); alert(`計画の保存に失敗しました: ${error.response?.data?.error || error.message}`);}
+  };
+
+  const handleDeleteTrip = async (tripId) => {  
+    if (!currentUser || !currentUser.token || !tripId) return;
+    if (window.confirm('本当にこの旅程を削除しますか？')) {
+      try {
+        await axios.delete(`${BACKEND_URL}/api/trips/${tripId}`, { headers: { Authorization: `Bearer ${currentUser.token}` } });
+        await fetchMyTrips(currentUser.token); 
+        if (selectedTrip && selectedTrip.id === tripId) { setSelectedTrip(null); }
+        if (currentScreen !== 'tripList') { setCurrentScreen('tripList'); }
+      } catch (error) { console.error('Failed to delete trip:', error.response?.data?.error || error.message); alert(`旅程の削除に失敗しました: ${error.response?.data?.error || error.message}`);}
+    }
+  };
+
   const handleCancelPlanForm = () => { setCurrentScreen('tripList'); setEditingPlan(null); };
   const handleBackToList = () => { setCurrentScreen('tripList'); setSelectedTrip(null); setEditingPlan(null); setCurrentHotelForRecommendations(null); setAiRecommendedCourses([]); };
-  const handleRequestAIForTrip = (trip) => console.log('AIに旅程提案を依頼 (対象:', trip.name, ')');
+  const handleRequestAIForTrip = (trip) => console.log('AIに旅程提案を依頼 (対象:', trip.name, ')'); // 既存のログを維持
+  
+  const handleGenerateSchedulesAI = async (tripId) => {
+    if (!currentUser || !currentUser.token || !tripId) { alert('ログイン情報または旅程IDが無効です。'); return; }
+    try {
+      alert('AIによるスケジュール生成を開始します。数秒かかる場合があります...');
+      const response = await axios.post(`${BACKEND_URL}/api/trips/${tripId}/generate-schedules-ai`, {}, {
+        headers: { Authorization: `Bearer ${currentUser.token}` }
+      });
+      const updatedTrip = response.data; // バックエンドから更新された旅程全体が返される想定
+
+      if (updatedTrip) {
+        setSelectedTrip(updatedTrip);
+        setTrips(prevTrips => prevTrips.map(t => t.id === tripId ? updatedTrip : t));
+        alert('AIによるスケジュール生成が完了しました！');
+      } else {
+        alert('AIによるスケジュール生成に失敗しました: 無効なレスポンス');
+      }
+    } catch (error) {
+      console.error('Failed to generate schedules with AI:', error.response ? error.response.data : error.message);
+      alert(`AIによるスケジュール生成に失敗しました: ${error.response?.data?.error || error.message}`);
+    }
+  };
+
   const handleShowPlaceSearchGeneral = () => { setPlaceSearchContext({ returnScreen: currentScreen, from: 'general' }); setCurrentScreen('placeSearch'); };
   const handleShowPlaceSearchForPlanForm = (callback) => { setPlaceSearchContext({ returnScreen: 'planForm', callback, from: 'planFormDestination' }); setCurrentScreen('placeSearch'); };
   const handleShowPlaceSearchForEvent = (callbackForPlace) => { setPlaceSearchContext({ returnScreen: 'eventForm', callback: callbackForPlace, from: 'eventForm' }); setCurrentScreen('placeSearch'); };
@@ -124,8 +270,6 @@ export const useAppLogic = () => {
   const handleAddFavoritePlace = (placeData) => { /* ... */ };
   const handleRemoveFavoritePlace = (placeIdOrName) => { /* ... */ };
   const handleShowHotelRecommendations = (hotel) => { setCurrentHotelForRecommendations(hotel); setAiRecommendedCourses([]); setCurrentScreen('hotelRecommendations'); };
-  const handleShowProfileEdit = () => setCurrentScreen('profileEdit');
-  const handleSaveProfile = (updatedProfile) => { setUserProfile(prevProfile => ({ ...prevProfile, ...updatedProfile })); setCurrentScreen('myProfile'); };
   const handleShowAccountSettings = () => setCurrentScreen('accountSettings');
   const handleChangeTripStatus = (tripId, newStatus) => { /* ... */ };
   const handleToggleTripPublicStatus = (tripId) => { /* ... */ };
@@ -149,12 +293,56 @@ export const useAppLogic = () => {
   const handleShowHotelDetailModal = (tripId, date, hotelData) => { setEditingHotelDetails({ tripId, date, hotelData }); };
   const handleSaveHotelDetails = (tripId, date, newHotelData) => { /* ... */ };
   const handleCancelHotelDetailModal = () => { setEditingHotelDetails(null); };
+  const handleShowScheduleForm = (tripId, scheduleToEdit = null) => {
+    console.log('[useAppLogic] handleShowScheduleForm called. tripId:', tripId, 'scheduleToEdit:', scheduleToEdit);
+    setEditingScheduleForTripId(tripId);
+    setEditingScheduleData(scheduleToEdit);
+    setCurrentScreen('scheduleForm');
+  };
+  const handleSaveSchedule = async (tripId, scheduleData, scheduleId = null) => {
+    if (!currentUser || !currentUser.token || !tripId) { alert('ログイン情報または旅程IDが無効です。'); return; }
+    try {
+      let response;
+      if (scheduleId) { 
+        response = await axios.put(`${BACKEND_URL}/api/trips/${tripId}/schedules/${scheduleId}`, scheduleData, { headers: { Authorization: `Bearer ${currentUser.token}` }});
+      } else { 
+        response = await axios.post(`${BACKEND_URL}/api/trips/${tripId}/schedules`, scheduleData, { headers: { Authorization: `Bearer ${currentUser.token}` }});
+      }
+      
+      const refreshedTrip = response.data; // APIレスポンスを直接利用
+
+      if (refreshedTrip) {
+        setSelectedTrip(refreshedTrip);
+        setTrips(prevTrips => prevTrips.map(t => t.id === tripId ? refreshedTrip : t));
+      } else {
+        console.warn(`[useAppLogic] handleSaveSchedule - API response for schedule save/update did not contain a valid trip object. Falling back to fetching all trips.`);
+        await fetchMyTrips(currentUser.token); 
+      }
+      
+      setCurrentScreen('tripDetail'); 
+      setEditingScheduleForTripId(null);
+      setEditingScheduleData(null);
+    } catch (error) { 
+      console.error('Failed to save schedule or refresh trip data:', error.response?.data?.error || error.message); 
+      alert(`スケジュールの保存またはデータ更新に失敗しました: ${error.response?.data?.error || error.message}`);
+      // エラー時もリストを再取得して整合性を保つ試み
+      if (currentUser && currentUser.token) { // currentUser と token の存在を確認
+        await fetchMyTrips(currentUser.token);
+      }
+      setCurrentScreen('tripDetail');
+    }
+  };
+  const handleCancelScheduleForm = () => {
+    setCurrentScreen('tripDetail'); 
+    setEditingScheduleForTripId(null);
+    setEditingScheduleData(null);
+  };
 
   return {
     currentScreen, setCurrentScreen,
     editingPlan, setEditingPlan,
     selectedTrip, setSelectedTrip,
-    selectedPlaceDetail, setSelectedPlaceDetail,
+    selectedPlaceDetail, setSelectedPlaceDetail, // ★ return に追加
     currentRouteQuery, setCurrentRouteQuery,
     editingMemoryForEvent, setEditingMemoryForEvent,
     viewingMemoriesForTripId, setViewingMemoriesForTripId,
@@ -169,21 +357,33 @@ export const useAppLogic = () => {
     favoritePickerContext, setFavoritePickerContext,
     editingPublishSettingsForTripId,
     editingHotelDetails,
-    handleShowPlanForm, handleShowTripDetail, handleSavePlan, handleCancelPlanForm, handleBackToList,
-    handleRequestAIForTrip, handleShowPlaceSearchGeneral, handleShowPlaceSearchForPlanForm,
-    handleShowPlaceSearchForEvent, handleSetHotelForDay, newHandlePlaceSelected,
-    handleShowPlaceDetail, handleBackFromPlaceDetail, handleShowRouteOptions, handleRouteSelected,
-    handleShowMemoryForm, handleSaveMemory, handleShowMemoryView, handleShowPublicTripsSearch,
-    handleSelectPublicTrip, handleCopyToMyPlans, handleCopyMyOwnTrip, handleAddFavoritePlace,
-    handleRemoveFavoritePlace, handleShowHotelRecommendations, handleShowProfileEdit, handleSaveProfile,
-    handleShowAccountSettings, handleLogin, handleSignup, handleLogout, handleChangeTripStatus,
-    handleToggleTripPublicStatus, handleShowEventForm, handleSaveEvent, handleDeleteAccountRequest,
-    handleConfirmAccountDeletion, handleChangePasswordRequest, handleConfirmPasswordChange,
-    handleChangeEmailRequest, handleSendEmailConfirmation, handleSendPasswordResetLink,
-    handleConfirmCodeAndSetNewPassword, handleShowMyProfile, handleShowFavoritePlaces,
-    handleShowFavoritePickerForEvent, handleRequestAICourse,
-    handleShowPublishSettings, handleSavePublishSettings, handleCancelPublishSettings,
+    editingScheduleForTripId, 
+    editingScheduleData,    
+    handleLogin, handleSignup, handleLogout,
+    handleSendPasswordResetLink, handleConfirmCodeAndSetNewPassword,
+    handleShowMyProfile, handleShowProfileEdit, handleSaveProfile, 
+    handleShowAccountSettings, handleDeleteAccountRequest, handleConfirmAccountDeletion,
+    handleChangePasswordRequest, handleConfirmPasswordChange,
+    handleChangeEmailRequest, handleSendEmailConfirmation,
+    handleShowPlanForm, handleShowTripDetail, handleSavePlan, handleDeleteTrip,
+    handleBackToList, handleChangeTripStatus, handleToggleTripPublicStatus,
+    handleCopyMyOwnTrip, handleCancelPlanForm,
+    handleShowScheduleForm, 
+    handleSaveSchedule,     
+    handleCancelScheduleForm, 
+    handleShowEventForm, handleSaveEvent, handleSetHotelForDay, handleHotelSelectedForDay,
     handleShowHotelDetailModal, handleSaveHotelDetails, handleCancelHotelDetailModal,
-    handleShowBackendTest: () => setCurrentScreen('backendTest')
+    handleShowPlaceSearchGeneral, handleShowPlaceSearchForPlanForm, handleShowPlaceSearchForEvent,
+    newHandlePlaceSelected, handleShowPlaceDetail, handleBackFromPlaceDetail,
+    handleShowRouteOptions, handleRouteSelected,
+    handleShowMemoryForm, handleSaveMemory, handleShowMemoryView,
+    handleShowPublicTripsSearch, handleSelectPublicTrip, handleCopyToMyPlans,
+    handleShowPublishSettings, handleSavePublishSettings, handleCancelPublishSettings,
+    handleShowFavoritePlaces, handleAddFavoritePlace, handleRemoveFavoritePlace,
+    handleShowFavoritePickerForEvent,
+    handleRequestAIForTrip, handleShowHotelRecommendations, handleRequestAICourse,
+    handleShowBackendTest: () => setCurrentScreen('backendTest'),
+    fetchMyTrips,
+    handleGenerateSchedulesAI // 追加
   };
 };

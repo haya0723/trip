@@ -1,46 +1,51 @@
 import React, { useState, useEffect } from 'react';
 // import './ProfileEditScreen.css'; // 必要に応じて作成
 
-function ProfileEditScreen({ userProfile, onSaveProfile, onCancel }) {
+function ProfileEditScreen({ currentUser, userProfile, onSaveProfile, onCancel }) {
   const [nickname, setNickname] = useState('');
   const [bio, setBio] = useState('');
-  const [avatarFile, setAvatarFile] = useState(null); // アップロード用ファイルオブジェクト
-  const [avatarPreview, setAvatarPreview] = useState(''); // 表示用URL (DataURLまたは既存URL)
+  const [avatarUrlInput, setAvatarUrlInput] = useState(''); // 手入力用URL
+  const [avatarFile, setAvatarFile] = useState(null);    // アップロード用ファイルオブジェクト
+  const [avatarPreview, setAvatarPreview] = useState(''); // 表示用URL (DataURLまたは既存/手入力URL)
 
   useEffect(() => {
     if (userProfile) {
-      setNickname(userProfile.nickname || '');
+      setNickname(userProfile.nickname || currentUser?.nickname || '');
       setBio(userProfile.bio || '');
-      setAvatarPreview(userProfile.avatarUrl || ''); // 初期表示は既存のURL
-      setAvatarFile(null); // 編集開始時はファイルをリセット
+      setAvatarUrlInput(userProfile.avatarUrl || ''); // 初期値は既存のURL
+      setAvatarPreview(userProfile.avatarUrl || ''); 
+      setAvatarFile(null); 
     }
-  }, [userProfile]);
+  }, [userProfile, currentUser]);
 
-  const handleAvatarChange = (e) => {
+  const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setAvatarFile(file); // ファイルオブジェクトを保持
+      setAvatarFile(file); 
       const reader = new FileReader();
       reader.onloadend = () => {
-        setAvatarPreview(reader.result); // DataURLをプレビューに設定
+        setAvatarPreview(reader.result); 
       };
       reader.readAsDataURL(file);
-    } else {
-      // ファイル選択がキャンセルされた場合、既存の画像に戻すか、クリアするか
-      // ここでは、もしuserProfileにavatarUrlがあればそれに戻す
-      setAvatarFile(null);
-      setAvatarPreview(userProfile?.avatarUrl || ''); 
+      setAvatarUrlInput(''); // ファイル選択時はURL入力をクリア
     }
   };
 
+  const handleUrlInputChange = (e) => {
+    const url = e.target.value;
+    setAvatarUrlInput(url);
+    setAvatarPreview(url); // URL入力時もプレビューを更新
+    setAvatarFile(null); // URL入力時はファイル選択をクリア
+  };
+
   const handleSave = () => {
-    // avatarPreview には、新しい画像のDataURLか、変更がない場合は既存のavatarUrlが入っている
-    onSaveProfile({
+    console.log('[ProfileEditScreen] handleSave called. avatarFile is:', avatarFile); // デバッグログ追加
+    const profileData = {
       nickname,
       bio,
-      avatarUrl: avatarPreview, 
-      // avatarFile を渡してApp.jsx側でアップロード処理をする場合は別途対応
-    });
+      avatarUrl: avatarFile ? undefined : avatarUrlInput, // ファイルがあればURLはundefined、なければ手入力URL
+    };
+    onSaveProfile(profileData, avatarFile); // ファイルオブジェクトも渡す
   };
 
   return (
@@ -56,15 +61,28 @@ function ProfileEditScreen({ userProfile, onSaveProfile, onCancel }) {
       <div className="profile-form">
         <div className="form-section avatar-section">
           <label>プロフィールアイコン</label>
-          <div className="avatar-preview">
-            {avatarPreview ? (
-              <img src={avatarPreview} alt="Avatar Preview" />
+          <div className="avatar-preview" style={{ width: '100px', height: '100px', border: '1px solid #ccc', marginBottom: '10px', backgroundSize: 'cover', backgroundPosition: 'center', backgroundImage: `url(${avatarPreview || 'https://dummyimage.com/100x100/cccccc/969696.png&text=No+Image'})` }}>
+            {/* {avatarPreview ? (
+              <img src={avatarPreview} alt="Avatar Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>
             ) : (
-              <div className="avatar-placeholder">アイコンなし</div>
-            )}
+              <div className="avatar-placeholder" style={{width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f0f0f0'}}>アイコンなし</div>
+            )} */}
           </div>
-          <input type="file" accept="image/*" onChange={handleAvatarChange} id="avatarUpload" style={{display: 'none'}} />
-          <label htmlFor="avatarUpload" className="upload-avatar-button">アイコンを変更</label>
+          <input type="file" accept="image/*" onChange={handleFileChange} id="avatarUpload" style={{display: 'none'}} />
+          <label htmlFor="avatarUpload" className="upload-avatar-button" style={{cursor: 'pointer', padding: '8px 12px', background: '#007bff', color: 'white', borderRadius: '4px', display: 'inline-block', marginBottom: '10px'}}>
+            アイコンを変更
+          </label>
+        </div>
+
+        <div className="form-section">
+          <label htmlFor="avatarUrlInput">または画像URLを入力:</label>
+          <input 
+            type="text" 
+            id="avatarUrlInput" 
+            value={avatarUrlInput} 
+            onChange={handleUrlInputChange} 
+            placeholder="https://example.com/image.png" 
+          />
         </div>
 
         <div className="form-section">
