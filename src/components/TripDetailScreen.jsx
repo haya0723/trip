@@ -3,15 +3,15 @@ import React, { useState, useEffect } from 'react';
 
 const tripStatuses = ['計画中', '予約済み', '旅行中', '完了', 'キャンセル'];
 
-function DailySchedule({ schedule, trip, onSelectTravelSegment, onAddMemoryForEvent, onShowHotelRecommendations, onAddEventToDay, onGenerateSchedulesAI, onSetHotelForDay, currentDate, onShowHotelDetailModal }) { // onRequestAI を onGenerateSchedulesAI に変更
+function DailySchedule({ schedule, trip, onSelectTravelSegment, onAddMemoryForEvent, onShowHotelRecommendations, onAddEventToDay, onRequestAI, onSetHotelForDay, currentDate, onShowHotelDetailModal, onEditEvent, onDeleteEvent }) {
   return (
-    <> {/* Fragment で囲む */}
+    <> 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
         <h3>{schedule.date} <span className="day-description">({schedule.day_description})</span></h3>
         <div style={{display: 'flex', gap: '10px'}}>
-          {onGenerateSchedulesAI && ( // onRequestAI を onGenerateSchedulesAI に変更
+          {onRequestAI && (
             <button 
-              onClick={() => onGenerateSchedulesAI(trip.id)} // trip を trip.id に変更
+              onClick={() => onRequestAI(trip)} 
               className="ai-suggest-button"
               style={{fontSize: '0.9em', padding: '6px 10px'}}
             >
@@ -21,7 +21,7 @@ function DailySchedule({ schedule, trip, onSelectTravelSegment, onAddMemoryForEv
           {onAddEventToDay && ( 
             <button 
               className="add-event-to-day-button" 
-              onClick={() => onAddEventToDay(schedule.date)}
+              onClick={() => onAddEventToDay(schedule.date, schedule.id)}
             >
               + 予定追加
             </button>
@@ -88,25 +88,48 @@ function DailySchedule({ schedule, trip, onSelectTravelSegment, onAddMemoryForEv
                    このホテル周辺のおすすめを見る
                  </button>
               )}
+              <div style={{marginTop: '10px'}}>
+                {onEditEvent && (
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); onEditEvent(schedule.id, event); }} 
+                    style={{fontSize: '0.8em', padding: '4px 8px', marginRight: '5px'}}
+                  >
+                    編集
+                  </button>
+                )}
+                {onDeleteEvent && (
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); onDeleteEvent(schedule.id, event.id); }} 
+                    style={{fontSize: '0.8em', padding: '4px 8px', color: 'red'}}
+                  >
+                    削除
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         ))}
       </div>
-    </> // Fragment を閉じる
+    </> 
   );
 }
 
-function TripDetailScreen({ trip, onBack, onEditPlanBasics, onGenerateSchedulesAI, onShowRouteOptions, onAddMemoryForEvent, onShowHotelRecommendations, onAddEventToDay, onViewOverallMemories, onChangeTripStatus, onSetHotelForDay, onTogglePublicStatus, onCopyMyOwnTrip, onShowPublishSettings, onShowHotelDetailModal, onAddSchedule, onDeleteTrip }) { // onRequestAI を onGenerateSchedulesAI に変更
+function TripDetailScreen({ trip, onBack, onEditPlanBasics, onRequestAI, onShowRouteOptions, onAddMemoryForEvent, onShowHotelRecommendations, onAddEventToDay, onViewOverallMemories, onChangeTripStatus, onSetHotelForDay, onTogglePublicStatus, onCopyMyOwnTrip, onShowPublishSettings, onShowHotelDetailModal, onAddSchedule, onDeleteTrip, onEditEvent, onDeleteEvent }) {
   const [selectedDate, setSelectedDate] = useState(null); 
   const [isEditingStatus, setIsEditingStatus] = useState(false);
 
   useEffect(() => {
     if (trip?.schedules && trip.schedules.length > 0) {
-      setSelectedDate(trip.schedules[0].date);
+      const dateExistsInNewSchedules = trip.schedules.some(s => s.date === selectedDate);
+      if (selectedDate && dateExistsInNewSchedules) {
+        // 現在選択中の日付が新しいスケジュールリストにも存在する場合、selectedDateは変更しない
+      } else {
+        setSelectedDate(trip.schedules[0].date);
+      }
     } else {
       setSelectedDate(null); 
     }
-  }, [trip]);
+  }, [trip]); // tripオブジェクトが変更されたときにのみ実行 (selectedDateは依存から外す)
 
   if (!trip) {
     return <div className="trip-detail-screen" style={{padding: '20px'}}><p>旅行データが見つかりません。</p><button onClick={onBack}>戻る</button></div>;
@@ -124,24 +147,52 @@ function TripDetailScreen({ trip, onBack, onEditPlanBasics, onGenerateSchedulesA
 
   return (
     <div className="trip-detail-screen">
-      <header className="app-header">
-        <h1>{trip.name}</h1>
+      <header className="app-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 20px', borderBottom: '1px solid #eee' }}>
         <div>
-          {onCopyMyOwnTrip && <button onClick={() => onCopyMyOwnTrip(trip)} className="action-button" style={{marginRight: '10px'}}>この計画をコピー</button>}
-          <button onClick={() => onEditPlanBasics(trip)} className="edit-plan-basics-button" style={{marginRight: '10px'}}>基本情報編集</button>
-          {onDeleteTrip && trip && <button onClick={() => onDeleteTrip(trip.id)} className="delete-trip-button action-button" style={{marginRight: '10px', backgroundColor: '#dc3545'}}>この旅程を削除</button>}
+          <h1>{trip.name}</h1>
+          {trip.start_date && trip.end_date && (
+            <p style={{ fontSize: '0.9em', color: '#666', margin: '0 0 5px 0' }}>
+              {new Date(trip.start_date).toLocaleDateString('ja-JP')} - {new Date(trip.end_date).toLocaleDateString('ja-JP')}
+            </p>
+          )}
+        </div>
+        <div style={{display: 'flex', gap: '10px'}}>
+          {onCopyMyOwnTrip && <button onClick={() => onCopyMyOwnTrip(trip)} className="action-button">この計画をコピー</button>}
+          <button onClick={() => onEditPlanBasics(trip)} className="edit-plan-basics-button">基本情報編集</button>
+          {onDeleteTrip && <button onClick={() => onDeleteTrip(trip.id)} className="delete-trip-button" style={{backgroundColor: '#ff4d4f', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '4px', cursor: 'pointer'}}>この旅程を削除</button>}
           <button onClick={onBack} className="back-button">一覧へ戻る</button>
         </div>
       </header>
 
-      <div className="trip-summary card-style" style={{marginBottom: '15px'}}>
-        {/* ... (trip summary JSX - 変更なし) ... */}
+      <div className="trip-summary card-style" style={{marginBottom: '15px', padding: '15px', background: '#f9f9f9', borderRadius: '4px', marginTop: '15px' }}>
+        {/* <h2>旅程サマリー</h2> */} 
+        <p><strong>目的地:</strong> {trip.destinations || '未設定'}</p>
+        <p><strong>期間:</strong> {trip.period_summary || (trip.start_date && trip.end_date ? `${new Date(trip.start_date).toLocaleDateString('ja-JP')} から ${new Date(trip.end_date).toLocaleDateString('ja-JP')} まで` : '未設定')}</p>
+        <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
+          <strong>ステータス:</strong> 
+          {isEditingStatus ? (
+            <select value={trip.status} onChange={(e) => handleStatusChange(e.target.value)} onBlur={() => setIsEditingStatus(false)}>
+              {tripStatuses.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+          ) : (
+            <span onClick={() => setIsEditingStatus(true)} style={{cursor: 'pointer', textDecoration: 'underline'}}>{trip.status || '未設定'}</span>
+          )}
+        </div>
+        {onTogglePublicStatus && (
+          <div style={{marginTop: '10px'}}>
+            <label>
+              <input type="checkbox" checked={!!trip.is_public} onChange={() => onTogglePublicStatus(trip.id, !trip.is_public)} />
+              この旅程を公開する
+            </label>
+            {trip.is_public && onShowPublishSettings && <button onClick={() => onShowPublishSettings(trip.id)} style={{marginLeft: '10px', fontSize: '0.8em'}}>公開設定</button>}
+          </div>
+        )}
       </div>
       
       <nav className="date-navigation">
         {schedulesToDisplay.map(schedule => (
           <button 
-            key={schedule.id} 
+            key={schedule.id || schedule.date} 
             onClick={() => setSelectedDate(schedule.date)}
             className={selectedDate === schedule.date ? 'active' : ''}
           >
@@ -177,10 +228,12 @@ function TripDetailScreen({ trip, onBack, onEditPlanBasics, onGenerateSchedulesA
         onAddMemoryForEvent={onAddMemoryForEvent}
         onShowHotelRecommendations={onShowHotelRecommendations}
         onAddEventToDay={onAddEventToDay} 
-        onGenerateSchedulesAI={onGenerateSchedulesAI} // onRequestAI を onGenerateSchedulesAI に変更
+        onRequestAI={onRequestAI}
         onSetHotelForDay={onSetHotelForDay}
         currentDate={selectedDate}
         onShowHotelDetailModal={onShowHotelDetailModal}
+        onEditEvent={(scheduleId, event) => onEditEvent(trip.id, scheduleId, event)}
+        onDeleteEvent={(scheduleId, eventId) => onDeleteEvent(trip.id, scheduleId, eventId)}
       />}
       
       {schedulesToDisplay.length > 0 && onAddSchedule && (

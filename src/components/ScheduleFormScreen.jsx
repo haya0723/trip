@@ -1,26 +1,31 @@
 import React, { useState, useEffect } from 'react';
+import DatePicker from 'react-datepicker';
 
 function ScheduleFormScreen({ tripId, existingSchedule, onSave, onCancel }) {
-  const [date, setDate] = useState('');
+  const [date, setDate] = useState(null); // Dateオブジェクトまたはnull
   const [dayDescription, setDayDescription] = useState('');
   // ホテル情報用のステートも後で追加
 
   useEffect(() => {
     if (existingSchedule) {
-      setDate(existingSchedule.date || '');
+      setDate(existingSchedule.date ? new Date(existingSchedule.date) : null);
       setDayDescription(existingSchedule.day_description || '');
       // TODO: ホテル情報もセット
     } else {
       // 新規作成時はtripIdに基づいてデフォルトの日付を設定するなどしても良い
-      const today = new Date().toISOString().split('T')[0];
-      setDate(today);
+      setDate(new Date()); // 今日の日付をデフォルトに
     }
   }, [existingSchedule]);
+
+  const formatDateForBackend = (dt) => {
+    if (!dt) return null;
+    return dt.toISOString().split('T')[0]; // YYYY-MM-DD
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const scheduleData = {
-      date,
+      date: formatDateForBackend(date),
       day_description: dayDescription,
       // TODO: hotel_info オブジェクトを構築
     };
@@ -34,11 +39,12 @@ function ScheduleFormScreen({ tripId, existingSchedule, onSave, onCancel }) {
       <form onSubmit={handleSubmit}>
         <div>
           <label htmlFor="schedule-date">日付:</label>
-          <input
-            type="date"
-            id="schedule-date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
+          <DatePicker
+            selected={date}
+            onChange={(d) => setDate(d)}
+            dateFormat="yyyy/MM/dd"
+            placeholderText="日付を選択"
+            className="date-picker-input"
             required
           />
         </div>

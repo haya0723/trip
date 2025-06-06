@@ -1,78 +1,161 @@
 import React, { useState, useEffect } from 'react';
+import DatePicker from 'react-datepicker';
+// import './HotelDetailModal.css'; // 必要に応じてCSSファイルを作成
 
 function HotelDetailModal({ hotelData, onSave, onCancel }) {
-  const [details, setDetails] = useState({
-    name: '',
-    address: '',
-    checkIn: '',
-    checkOut: '',
-    reservationNumber: '',
-    notes: '',
-    // isHotel: true, // これは場所検索時に設定される想定
-  });
+  const [name, setName] = useState('');
+  const [address, setAddress] = useState('');
+  const [checkInTime, setCheckInTime] = useState(null);
+  const [checkOutTime, setCheckOutTime] = useState(null);
+  const [reservationNumber, setReservationNumber] = useState('');
+  const [notes, setNotes] = useState('');
 
   useEffect(() => {
     if (hotelData) {
-      setDetails({
-        name: hotelData.name || '',
-        address: hotelData.address || '',
-        checkIn: hotelData.checkIn || '',
-        checkOut: hotelData.checkOut || '',
-        reservationNumber: hotelData.reservationNumber || '',
-        notes: hotelData.notes || '',
-      });
+      setName(hotelData.name || '');
+      setAddress(hotelData.address || '');
+      setCheckInTime(hotelData.checkInTime ? new Date(hotelData.checkInTime) : null);
+      setCheckOutTime(hotelData.checkOutTime ? new Date(hotelData.checkOutTime) : null);
+      setReservationNumber(hotelData.reservationNumber || '');
+      setNotes(hotelData.notes || '');
+    } else {
+      // 新規作成時のデフォルト値（必要に応じて）
+      setName('');
+      setAddress('');
+      setCheckInTime(null);
+      setCheckOutTime(null);
+      setReservationNumber('');
+      setNotes('');
     }
   }, [hotelData]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setDetails(prev => ({ ...prev, [name]: value }));
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(details);
+    const updatedHotelData = {
+      name,
+      address,
+      checkInTime: checkInTime ? checkInTime.toISOString() : null,
+      checkOutTime: checkOutTime ? checkOutTime.toISOString() : null,
+      reservationNumber,
+      notes,
+    };
+    onSave(updatedHotelData);
   };
 
-  if (!hotelData) return null; // hotelDataがない場合は何も表示しない
-
   return (
-    <div className="modal-overlay" onClick={onCancel}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{maxWidth: '500px'}}>
-        <h2>ホテル情報編集</h2>
+    <div className="modal-overlay" style={styles.overlay}>
+      <div className="modal-content" style={styles.content}>
+        <h2>ホテル情報 {hotelData?.name ? '編集' : '追加'}</h2>
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
+          <div style={styles.formGroup}>
             <label htmlFor="hotelName">ホテル名:</label>
-            <input type="text" id="hotelName" name="name" value={details.name} onChange={handleChange} disabled style={{backgroundColor: '#f0f0f0'}} />
+            <input type="text" id="hotelName" value={name} onChange={(e) => setName(e.target.value)} required style={styles.input} />
           </div>
-          <div className="form-group">
+          <div style={styles.formGroup}>
             <label htmlFor="hotelAddress">住所:</label>
-            <input type="text" id="hotelAddress" name="address" value={details.address} onChange={handleChange} disabled style={{backgroundColor: '#f0f0f0'}} />
+            <input type="text" id="hotelAddress" value={address} onChange={(e) => setAddress(e.target.value)} style={styles.input} />
+            {/* TODO: 場所検索ボタン */}
           </div>
-          <div className="form-group">
-            <label htmlFor="checkIn">チェックイン時間:</label>
-            <input type="time" id="checkIn" name="checkIn" value={details.checkIn} onChange={handleChange} />
+          <div style={styles.formGroup}>
+            <label htmlFor="checkInTime">チェックイン日時:</label>
+            <DatePicker
+              selected={checkInTime}
+              onChange={(date) => setCheckInTime(date)}
+              showTimeSelect
+              dateFormat="yyyy/MM/dd HH:mm"
+              placeholderText="チェックイン日時を選択"
+              className="date-picker-input" // App.cssなどでスタイル調整
+              wrapperClassName="date-picker-wrapper"
+            />
           </div>
-          <div className="form-group">
-            <label htmlFor="checkOut">チェックアウト時間:</label>
-            <input type="time" id="checkOut" name="checkOut" value={details.checkOut} onChange={handleChange} />
+          <div style={styles.formGroup}>
+            <label htmlFor="checkOutTime">チェックアウト日時:</label>
+            <DatePicker
+              selected={checkOutTime}
+              onChange={(date) => setCheckOutTime(date)}
+              showTimeSelect
+              dateFormat="yyyy/MM/dd HH:mm"
+              minDate={checkInTime} // チェックアウトはチェックイン以降
+              placeholderText="チェックアウト日時を選択"
+              className="date-picker-input"
+              wrapperClassName="date-picker-wrapper"
+            />
           </div>
-          <div className="form-group">
+          <div style={styles.formGroup}>
             <label htmlFor="reservationNumber">予約番号:</label>
-            <input type="text" id="reservationNumber" name="reservationNumber" value={details.reservationNumber} onChange={handleChange} />
+            <input type="text" id="reservationNumber" value={reservationNumber} onChange={(e) => setReservationNumber(e.target.value)} style={styles.input} />
           </div>
-          <div className="form-group">
+          <div style={styles.formGroup}>
             <label htmlFor="hotelNotes">備考:</label>
-            <textarea id="hotelNotes" name="notes" value={details.notes} onChange={handleChange} rows="3"></textarea>
+            <textarea id="hotelNotes" value={notes} onChange={(e) => setNotes(e.target.value)} rows="3" style={styles.textarea}></textarea>
           </div>
-          <div className="form-actions" style={{marginTop: '20px'}}>
-            <button type="submit" className="primary-button">保存</button>
-            <button type="button" onClick={onCancel} className="secondary-button" style={{marginLeft: '10px'}}>キャンセル</button>
+          <div style={styles.buttonGroup}>
+            <button type="submit" style={{ ...styles.button, ...styles.saveButton }}>保存</button>
+            <button type="button" onClick={onCancel} style={{ ...styles.button, ...styles.cancelButton }}>キャンセル</button>
           </div>
         </form>
       </div>
     </div>
   );
 }
+
+const styles = {
+  overlay: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  content: {
+    background: 'white',
+    padding: '20px',
+    borderRadius: '8px',
+    width: '90%',
+    maxWidth: '500px',
+    maxHeight: '90vh',
+    overflowY: 'auto',
+  },
+  formGroup: {
+    marginBottom: '15px',
+  },
+  input: {
+    width: 'calc(100% - 10px)',
+    padding: '8px',
+    border: '1px solid #ccc',
+    borderRadius: '4px',
+  },
+  textarea: {
+    width: 'calc(100% - 10px)',
+    padding: '8px',
+    border: '1px solid #ccc',
+    borderRadius: '4px',
+    minHeight: '60px',
+  },
+  buttonGroup: {
+    marginTop: '20px',
+    textAlign: 'right',
+  },
+  button: {
+    padding: '10px 15px',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    marginLeft: '10px',
+  },
+  saveButton: {
+    backgroundColor: '#4CAF50',
+    color: 'white',
+  },
+  cancelButton: {
+    backgroundColor: '#f44336',
+    color: 'white',
+  }
+};
 
 export default HotelDetailModal;

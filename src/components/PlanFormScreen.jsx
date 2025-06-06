@@ -1,30 +1,31 @@
 import React, { useState, useEffect } from 'react';
+import DatePicker from 'react-datepicker';
 // import './PlanFormScreen.css'; 
 
 function PlanFormScreen({ currentPlan, onSave, onCancel, onShowPlaceSearch }) {
   const isEditMode = !!currentPlan;
   const [planName, setPlanName] = useState('');
   const [destinations, setDestinations] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [startDate, setStartDate] = useState(null); // Dateオブジェクトまたはnull
+  const [endDate, setEndDate] = useState(null);   // Dateオブジェクトまたはnull
   const [status, setStatus] = useState('計画中'); 
-  const [coverImageFile, setCoverImageFile] = useState(null); // ファイルオブジェクト用
-  const [coverImagePreviewUrl, setCoverImagePreviewUrl] = useState(''); // プレビューURL用
+  const [coverImageFile, setCoverImageFile] = useState(null);
+  const [coverImagePreviewUrl, setCoverImagePreviewUrl] = useState('');
 
   useEffect(() => {
     if (currentPlan) {
       setPlanName(currentPlan.name || '');
-      const dates = currentPlan.period ? currentPlan.period.split(' - ') : ['', ''];
-      setStartDate(dates[0].split(' (')[0]); 
-      setEndDate(dates[1] ? dates[1].split(' (')[0] : ''); 
+      // period (YYYY-MM-DD - YYYY-MM-DD) から Date オブジェクトへ
+      if (currentPlan.start_date) setStartDate(new Date(currentPlan.start_date));
+      if (currentPlan.end_date) setEndDate(new Date(currentPlan.end_date));
       setDestinations(currentPlan.destinations || '');
       setStatus(currentPlan.status || '計画中');
-      setCoverImageFile(null); // 編集時はファイルをリセット
-      setCoverImagePreviewUrl(currentPlan.coverImage || ''); // 既存の画像URLをプレビューに
+      setCoverImageFile(null); 
+      setCoverImagePreviewUrl(currentPlan.cover_image_url || ''); 
     } else {
       setPlanName('');
-      setStartDate('');
-      setEndDate('');
+      setStartDate(null);
+      setEndDate(null);
       setDestinations('');
       setStatus('計画中');
       setCoverImageFile(null);
@@ -43,37 +44,34 @@ function PlanFormScreen({ currentPlan, onSave, onCancel, onShowPlaceSearch }) {
       reader.readAsDataURL(file);
     } else {
       setCoverImageFile(null);
-      setCoverImagePreviewUrl(currentPlan?.coverImage || ''); // ファイル選択がキャンセルされたら元の画像に戻す（または空に）
+      setCoverImagePreviewUrl(currentPlan?.cover_image_url || ''); 
     }
+  };
+
+  const formatDateForBackend = (date) => {
+    if (!date) return null;
+    return date.toISOString().split('T')[0]; // YYYY-MM-DD
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // 簡単な期間文字列生成ロジック（泊数計算は省略）
-    let periodString = '';
-    if (startDate && endDate) {
-      periodString = `${startDate} - ${endDate}`;
-      // 必要であれば泊数計算を追加
-    } else if (startDate) {
-      periodString = `${startDate} - (終了日未定)`;
-    } else if (endDate) {
-      periodString = `(開始日未定) - ${endDate}`;
-    }
-
+    
     const formData = {
       name: planName,
       destinations: destinations,
-      period: periodString,
+      start_date: formatDateForBackend(startDate),
+      end_date: formatDateForBackend(endDate),
       status: status, 
-      // coverImageFile があればそれ（のDataURL）、なければ既存のURL（編集時）または空文字
-      coverImage: coverImagePreviewUrl, // DataURLまたは既存URLを渡す
+      // バックエンドが期待する形式で cover_image_url を渡す
+      // coverImageFile があればアップロード処理が必要だが、今回はDataURL/既存URLを渡す
+      cover_image_url: coverImagePreviewUrl, 
     };
-    // ファイル自体を渡す場合は別途処理が必要 (例: onSave({ ...formData, coverImageFile }) )
-    // 今回はDataURLをcoverImageとして扱う
+
     if (isEditMode) {
-      onSave({ ...currentPlan, ...formData }); // coverImageFile は渡さない
+      onSave({ ...currentPlan, ...formData }); 
     } else {
-      onSave({ ...formData, id: Date.now() }); // status は formData に含まれるので不要
+      // 新規作成時は id はバックエンドで振られるので不要
+      onSave(formData); 
     }
   };
 
@@ -102,17 +100,35 @@ function PlanFormScreen({ currentPlan, onSave, onCancel, onShowPlaceSearch }) {
               placeholder="例: 東京、京都" 
               style={{ flexGrow: 1, marginRight: '10px' }}
             />
-            {/* onShowPlaceSearch が渡されていれば検索ボタンを表示 */}
             {onShowPlaceSearch && <button type="button" onClick={() => onShowPlaceSearch(setDestinations)} className="search-destination-button">検索</button>}
           </div>
         </div>
         <div className="form-section">
           <label htmlFor="startDate">開始日</label>
-          <input type="date" id="startDate" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+          <DatePicker
+            selected={startDate}
+            onChange={(date) => setStartDate(date)}
+            selectsStart
+            startDate={startDate}
+            endDate={endDate}
+            dateFormat="yyyy/MM/dd"
+            placeholderText="開始日を選択"
+            className="date-picker-input"
+          />
         </div>
         <div className="form-section">
           <label htmlFor="endDate">終了日</label>
-          <input type="date" id="endDate" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+          <DatePicker
+            selected={endDate}
+            onChange={(date) => setEndDate(date)}
+            selectsEnd
+            startDate={startDate}
+            endDate={endDate}
+            minDate={startDate}
+            dateFormat="yyyy/MM/dd"
+            placeholderText="終了日を選択"
+            className="date-picker-input"
+          />
         </div>
         <div className="form-section">
           <label htmlFor="coverImageFile">カバー画像</label>
