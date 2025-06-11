@@ -2,6 +2,7 @@ import React from 'react';
 // import './MyProfileScreen.css'; // 必要に応じて作成
 
 function MyProfileScreen({ userProfile, onEditProfile, onShowAccountSettings, onLogout, onShowFavoritePlaces, onShowBackendTest }) { // onShowBackendTest を追加
+  // console.log('[MyProfileScreen] Received userProfile:', JSON.stringify(userProfile, null, 2)); // デバッグ用に追加
   if (!userProfile) {
     // ユーザープロファイルがない場合は、ローディング表示やエラーメッセージなどを表示
     // ここでは簡略化のため、何も表示しないか、ログインを促すメッセージを表示
@@ -22,7 +23,7 @@ function MyProfileScreen({ userProfile, onEditProfile, onShowAccountSettings, on
       <div className="profile-summary card-style" style={{ textAlign: 'center', marginBottom: '30px' }}>
         <div className="avatar-preview" style={{ width: '120px', height: '120px', borderRadius: '50%', margin: '0 auto 15px auto', backgroundColor: '#e0e0e0', overflow: 'hidden' }}>
           {userProfile.avatarUrl ? (
-            <img src={userProfile.avatarUrl} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src={userProfile.avatarUrl} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', fontSize: '3em', color: '#aaa' }}>👤</div>
           )}

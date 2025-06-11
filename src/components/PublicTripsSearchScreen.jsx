@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { initialDummyPublicTrips } from '../hooks/useAppLogic'; // ダミーデータをフックからインポート
+import { initialDummyPublicTrips } from '../data/dummyData'; // インポート元を変更
 // import './PublicTripsSearchScreen.css'; // 必要に応じて作成
 
 function PublicTripCard({ trip, onSelect }) {
@@ -39,7 +39,7 @@ function PublicTripsSearchScreen({ onSelectPublicTrip, onCancel }) {
       results = results.filter(trip => 
         trip.title.toLowerCase().includes(lowerSearchTerm) ||
         trip.destinations.some(d => d.toLowerCase().includes(lowerSearchTerm)) ||
-        trip.tags.some(t => t.toLowerCase().includes(lowerSearchTerm)) ||
+        (trip.tags && trip.tags.some(t => t.toLowerCase().includes(lowerSearchTerm))) || // tags が存在するかチェック
         (trip.description && trip.description.toLowerCase().includes(lowerSearchTerm)) ||
         trip.author.toLowerCase().includes(lowerSearchTerm)
       );
@@ -65,16 +65,16 @@ function PublicTripsSearchScreen({ onSelectPublicTrip, onCancel }) {
     // テーマフィルター
     if (filters.theme.trim()) {
       const lowerTheme = filters.theme.toLowerCase();
-      results = results.filter(trip => trip.tags.some(t => t.toLowerCase().includes(lowerTheme)));
+      results = results.filter(trip => trip.tags && trip.tags.some(t => t.toLowerCase().includes(lowerTheme))); // tags が存在するかチェック
     }
 
     // ソート
     if (sortBy === 'popular') {
-      results.sort((a, b) => b.copiedCount - a.copiedCount);
+      results.sort((a, b) => (b.copiedCount || 0) - (a.copiedCount || 0)); // copiedCount が存在するかチェック
     } else if (sortBy === 'newest') {
       results.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     } else if (sortBy === 'rating') {
-      results.sort((a, b) => b.rating - a.rating);
+      results.sort((a, b) => (b.rating || 0) - (a.rating || 0)); // rating が存在するかチェック
     }
 
     setFilteredAndSortedResults(results);

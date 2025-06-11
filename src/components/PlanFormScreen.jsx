@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
+import axios from 'axios'; // axios をインポート
 // import './PlanFormScreen.css'; 
 
-function PlanFormScreen({ currentPlan, onSave, onCancel, onShowPlaceSearch }) {
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'; // 環境変数から読み込み、なければローカル
+
+function PlanFormScreen({ currentPlan, onSave, onCancel, onShowPlaceSearch, currentUser }) { // currentUser を props に追加
   const isEditMode = !!currentPlan;
   const [planName, setPlanName] = useState('');
   const [destinations, setDestinations] = useState('');
@@ -53,25 +56,56 @@ function PlanFormScreen({ currentPlan, onSave, onCancel, onShowPlaceSearch }) {
     return date.toISOString().split('T')[0]; // YYYY-MM-DD
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => { // async に変更
     e.preventDefault();
-    
-    const formData = {
+
+    let finalCoverImageUrl = coverImagePreviewUrl;
+
+    if (coverImageFile) {
+      // 新しいカバー画像ファイルが選択されている場合、アップロード処理を行う
+      if (!currentUser || !currentUser.token) {
+        alert('画像アップロードのためにはログインが必要です。');
+        return;
+      }
+      const imageFormData = new FormData();
+      imageFormData.append('mediaFile', coverImageFile);
+
+      try {
+        const uploadResponse = await axios.post(`${BACKEND_URL}/api/upload/media`, imageFormData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${currentUser.token}`,
+          },
+        });
+        finalCoverImageUrl = uploadResponse.data.fileUrl; // アップロードされたファイルのURLを使用
+      } catch (uploadError) {
+        console.error('カバー画像のアップロードに失敗しました:', uploadError);
+        alert(`カバー画像のアップロードに失敗しました: ${uploadError.response?.data?.error || uploadError.message}`);
+        return; // アップロード失敗時は保存処理を中断
+      }
+    } else if (!coverImagePreviewUrl && isEditMode && currentPlan?.cover_image_url) {
+      // ファイルが選択されておらず、プレビューもなく、編集モードで元々URLがあったがクリアされた場合
+      // (例えばユーザーが既存画像を「削除」したい意図の場合。UIが別途必要だが、ここではURLをnullにする)
+      // ただし、現在のUIでは明示的な削除がないため、この分岐は現状あまり意味がないかもしれない。
+      // もし既存画像を維持したい場合は、この分岐は不要で、useEffectでセットされた currentPlan.cover_image_url が使われる。
+      // ここでは、もし coverImagePreviewUrl が意図的に空にされたら、それを反映する。
+      finalCoverImageUrl = null; 
+    }
+
+
+    const planDataToSave = {
       name: planName,
       destinations: destinations,
       start_date: formatDateForBackend(startDate),
       end_date: formatDateForBackend(endDate),
-      status: status, 
-      // バックエンドが期待する形式で cover_image_url を渡す
-      // coverImageFile があればアップロード処理が必要だが、今回はDataURL/既存URLを渡す
-      cover_image_url: coverImagePreviewUrl, 
+      status: status,
+      cover_image_url: finalCoverImageUrl,
     };
 
     if (isEditMode) {
-      onSave({ ...currentPlan, ...formData }); 
+      onSave({ ...currentPlan, ...planDataToSave });
     } else {
-      // 新規作成時は id はバックエンドで振られるので不要
-      onSave(formData); 
+      onSave(planDataToSave);
     }
   };
 

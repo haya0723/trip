@@ -3,7 +3,20 @@ import React, { useState, useEffect } from 'react';
 
 const tripStatuses = ['計画中', '予約済み', '旅行中', '完了', 'キャンセル'];
 
-function DailySchedule({ schedule, trip, onSelectTravelSegment, onAddMemoryForEvent, onShowHotelRecommendations, onAddEventToDay, onRequestAI, onSetHotelForDay, currentDate, onShowHotelDetailModal, onEditEvent, onDeleteEvent }) {
+function DailySchedule({ 
+  schedule, 
+  trip, 
+  onSelectTravelSegment, 
+  onShowMemoryForm, // onAddMemoryForEvent から変更
+  onShowHotelRecommendations, 
+  onAddEventToDay, 
+  onRequestAI, 
+  onSetHotelForDay, 
+  currentDate, 
+  onShowHotelDetailModal, 
+  onEditEvent, 
+  onDeleteEvent 
+}) {
   return (
     <> 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
@@ -66,12 +79,13 @@ function DailySchedule({ schedule, trip, onSelectTravelSegment, onAddMemoryForEv
               <h4>{event.name} <span className="event-category">[{event.category}]</span></h4>
               <p>{event.description}</p>
               {event.estimatedDurationMinutes && <p className="event-duration">所要時間: 約{event.estimatedDurationMinutes}分</p>}
-              {event.type !== 'travel' && onAddMemoryForEvent && (
+              {event.type !== 'travel' && onShowMemoryForm && (
                 <button 
                   className="add-memory-button" 
                   onClick={(e) => { 
                     e.stopPropagation(); 
-                    onAddMemoryForEvent(event.name, schedule.date); 
+                    // onShowMemoryForm(tripId, eventId, eventName, date, existingMemory)
+                    onShowMemoryForm(trip.id, event.id, event.name, schedule.date, null); // existingMemory は新規作成なのでnull
                   }}
                 >
                   思い出を登録/編集
@@ -114,7 +128,27 @@ function DailySchedule({ schedule, trip, onSelectTravelSegment, onAddMemoryForEv
   );
 }
 
-function TripDetailScreen({ trip, onBack, onEditPlanBasics, onRequestAI, onShowRouteOptions, onAddMemoryForEvent, onShowHotelRecommendations, onAddEventToDay, onViewOverallMemories, onChangeTripStatus, onSetHotelForDay, onTogglePublicStatus, onCopyMyOwnTrip, onShowPublishSettings, onShowHotelDetailModal, onAddSchedule, onDeleteTrip, onEditEvent, onDeleteEvent }) {
+function TripDetailScreen({ 
+  trip, 
+  onBack, 
+  onEditPlanBasics, 
+  onRequestAI, 
+  onShowRouteOptions, 
+  onShowMemoryForm, // onAddMemoryForEvent から変更
+  onShowHotelRecommendations, 
+  onAddEventToDay, 
+  onViewOverallMemories, 
+  onChangeTripStatus, 
+  onSetHotelForDay, 
+  onTogglePublicStatus, 
+  onCopyMyOwnTrip, 
+  onShowPublishSettings, 
+  onShowHotelDetailModal, 
+  onAddSchedule, 
+  onDeleteTrip, 
+  onEditEvent, 
+  onDeleteEvent 
+}) {
   const [selectedDate, setSelectedDate] = useState(null); 
   const [isEditingStatus, setIsEditingStatus] = useState(false);
 
@@ -129,7 +163,7 @@ function TripDetailScreen({ trip, onBack, onEditPlanBasics, onRequestAI, onShowR
     } else {
       setSelectedDate(null); 
     }
-  }, [trip]); // tripオブジェクトが変更されたときにのみ実行 (selectedDateは依存から外す)
+  }, [trip]); 
 
   if (!trip) {
     return <div className="trip-detail-screen" style={{padding: '20px'}}><p>旅行データが見つかりません。</p><button onClick={onBack}>戻る</button></div>;
@@ -165,7 +199,6 @@ function TripDetailScreen({ trip, onBack, onEditPlanBasics, onRequestAI, onShowR
       </header>
 
       <div className="trip-summary card-style" style={{marginBottom: '15px', padding: '15px', background: '#f9f9f9', borderRadius: '4px', marginTop: '15px' }}>
-        {/* <h2>旅程サマリー</h2> */} 
         <p><strong>目的地:</strong> {trip.destinations || '未設定'}</p>
         <p><strong>期間:</strong> {trip.period_summary || (trip.start_date && trip.end_date ? `${new Date(trip.start_date).toLocaleDateString('ja-JP')} から ${new Date(trip.end_date).toLocaleDateString('ja-JP')} まで` : '未設定')}</p>
         <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
@@ -225,7 +258,7 @@ function TripDetailScreen({ trip, onBack, onEditPlanBasics, onRequestAI, onShowR
             : { name: trip.name + 'の次の目的地（仮）' };
           onShowRouteOptions(origin, destination);
         }}
-        onAddMemoryForEvent={onAddMemoryForEvent}
+        onShowMemoryForm={onShowMemoryForm} // onAddMemoryForEvent から変更
         onShowHotelRecommendations={onShowHotelRecommendations}
         onAddEventToDay={onAddEventToDay} 
         onRequestAI={onRequestAI}

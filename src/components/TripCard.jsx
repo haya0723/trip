@@ -6,8 +6,8 @@ import React from 'react';
 function TripCard({ trip, onEdit, onSelect, onViewMemories }) { // onSelect, onViewMemories を props に追加
   return (
     <div className="trip-card" onClick={onSelect} style={{ cursor: 'pointer' }}> {/* カード全体をクリック可能に */}
-      {trip.coverImage ? (
-        <img src={trip.coverImage} alt={trip.name} className="trip-card-image" />
+      {trip.cover_image_url ? (
+        <img src={trip.cover_image_url} alt={trip.name} className="trip-card-image" />
       ) : (
         <div className="trip-card-image-placeholder">カバー画像なし</div>
       )}

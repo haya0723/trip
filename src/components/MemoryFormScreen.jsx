@@ -1,117 +1,119 @@
 import React, { useState, useEffect } from 'react';
-// import './MemoryFormScreen.css'; // 必要に応じて作成
 
-function MemoryFormScreen({ tripId, eventName, existingMemory, onSaveMemory, onCancel }) {
+function MemoryFormScreen({ editingMemoryForEvent, onSaveMemory, onCancel }) {
+  const { tripId, eventId, eventName, date, existingMemory } = editingMemoryForEvent || {};
+
   const [notes, setNotes] = useState('');
   const [rating, setRating] = useState(0);
-  
-  // 写真用 state
-  const [photoFiles, setPhotoFiles] = useState([]); // アップロードするFileオブジェクトの配列
-  const [photoPreviews, setPhotoPreviews] = useState([]); // 表示用URL (DataURLまたは既存URL) の配列
-
-  // 動画用 state (今回はファイル名のみを扱う簡易版)
-  const [videoFiles, setVideoFiles] = useState([]); // アップロードするFileオブジェクトの配列
-  const [videoNames, setVideoNames] = useState([]); // 表示用ファイル名の配列
+  const [currentMediaUrls, setCurrentMediaUrls] = useState([]); // 既存のメディアURL
+  const [newMediaFiles, setNewMediaFiles] = useState([]); // 新規アップロード用Fileオブジェクト
+  const [newMediaPreviews, setNewMediaPreviews] = useState([]); // 新規ファイルのプレビューURL
 
   useEffect(() => {
     if (existingMemory) {
       setNotes(existingMemory.notes || '');
       setRating(existingMemory.rating || 0);
-      // 既存のメディアはURL文字列の配列として渡される想定
-      setPhotoPreviews(existingMemory.photos || []); 
-      setVideoNames(existingMemory.videos || []); // 動画はファイル名やURLの配列を想定
-      setPhotoFiles([]); // 編集開始時は新規ファイル選択をリセット
-      setVideoFiles([]);
+      setCurrentMediaUrls(existingMemory.media_urls || []);
+      setNewMediaFiles([]);
+      setNewMediaPreviews([]);
     } else {
       setNotes('');
       setRating(0);
-      setPhotoPreviews([]);
-      setVideoNames([]);
-      setPhotoFiles([]);
-      setVideoFiles([]);
+      setCurrentMediaUrls([]);
+      setNewMediaFiles([]);
+      setNewMediaPreviews([]);
     }
   }, [existingMemory]);
 
-  const handleMediaChange = (e) => {
+  const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    const newPhotoFiles = [];
-    const newPhotoPreviews = [];
-    const newVideoFiles = [];
-    const newVideoNames = [];
+    const newFiles = [];
+    const newPreviews = [];
 
     files.forEach(file => {
-      if (file.type.startsWith('image/')) {
-        newPhotoFiles.push(file);
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setPhotoPreviews(prev => [...prev, reader.result]);
-        };
-        reader.readAsDataURL(file);
-      } else if (file.type.startsWith('video/')) {
-        newVideoFiles.push(file);
-        setVideoNames(prev => [...prev, file.name]); // 動画はファイル名でプレビュー
-      }
+      newFiles.push(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setNewMediaPreviews(prev => [...prev, { name: file.name, url: reader.result, type: file.type }]);
+      };
+      reader.readAsDataURL(file);
     });
-    setPhotoFiles(prev => [...prev, ...newPhotoFiles]);
-    setVideoFiles(prev => [...prev, ...newVideoFiles]);
+    setNewMediaFiles(prev => [...prev, ...newFiles]);
   };
 
-  const removePhoto = (indexToRemove) => {
-    setPhotoPreviews(prev => prev.filter((_, index) => index !== indexToRemove));
-    setPhotoFiles(prev => prev.filter((_, index) => index !== indexToRemove));
+  const removeCurrentMedia = (indexToRemove) => {
+    setCurrentMediaUrls(prev => prev.filter((_, index) => index !== indexToRemove));
   };
-  
-  const removeVideo = (indexToRemove) => {
-    setVideoNames(prev => prev.filter((_, index) => index !== indexToRemove));
-    setVideoFiles(prev => prev.filter((_, index) => index !== indexToRemove));
+
+  const removeNewMedia = (indexToRemove) => {
+    setNewMediaFiles(prev => prev.filter((_, index) => index !== indexToRemove));
+    setNewMediaPreviews(prev => prev.filter((_, index) => index !== indexToRemove));
   };
 
   const handleSave = () => {
-    // App.jsx にはプレビューURL(DataURLまたは既存URL)とファイル名(動画)の配列を渡す
-    onSaveMemory({
-      tripId, 
-      eventName, 
+    console.log('[MemoryFormScreen] handleSave called. Data to save:', { notes, rating, currentMediaUrls, eventId, tripId }, 'Files to upload:', newMediaFiles); // デバッグログ追加
+    const memoryData = {
       notes,
-      rating,
-      photos: photoPreviews, // DataURLまたは既存URLの配列
-      videos: videoNames,   // ファイル名または既存URLの配列
-      // photoFiles や videoFiles を直接渡してApp.jsxでアップロード処理をする場合は別途検討
-    });
+      rating: parseInt(rating, 10) || 0,
+      media_urls: currentMediaUrls, 
+    };
+
+    if (existingMemory && existingMemory.id) {
+      memoryData.id = existingMemory.id;
+    }
+    if (eventId) {
+      memoryData.event_id = eventId;
+    } else if (tripId) { 
+      memoryData.trip_id = tripId;
+    }
+    
+    onSaveMemory(memoryData, newMediaFiles);
+  };
+  
+  const getHeaderTitle = () => {
+    let title = existingMemory ? '思い出を編集' : '新しい思い出';
+    if (eventName) {
+      title += ` (${eventName})`;
+    } else if (date) {
+      const formattedDate = new Date(date).toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' });
+      title += ` (${formattedDate})`;
+    } else if (tripId && !eventId) {
+      title += ` (旅行全体)`;
+    }
+    return title;
   };
 
+
   return (
-    <div className="memory-form-screen">
-      <header className="app-header">
-        <h1>{eventName || (tripId ? `旅行ID:${tripId} 全体` : '思い出')} の登録・編集</h1>
+    <div className="memory-form-screen" style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h2>{getHeaderTitle()}</h2>
         <div>
-          <button onClick={onCancel} className="cancel-button">キャンセル</button>
-          <button onClick={handleSave} className="save-button">保存</button>
+          <button onClick={onCancel} style={{ marginRight: '10px' }}>キャンセル</button>
+          <button onClick={handleSave} style={{ fontWeight: 'bold' }}>保存</button>
         </div>
       </header>
 
-      <div className="form-section">
-        <h3>{eventName || '旅行全体の思い出'}</h3>
-      </div>
-
-      <div className="form-section">
-        <label htmlFor="memoryNotes">感想・メモ</label>
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="memoryNotes" style={{ display: 'block', marginBottom: '5px' }}>メモ・感想:</label>
         <textarea
           id="memoryNotes"
           rows="5"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          placeholder="この場所での出来事や感想を記録しましょう..."
-        ></textarea>
+          placeholder="この場所やイベントでの出来事、感じたことを記録しましょう..."
+          style={{ width: '100%', padding: '8px', boxSizing: 'border-box', border: '1px solid #ccc', borderRadius: '4px' }}
+        />
       </div>
 
-      <div className="form-section">
-        <label>評価 (5段階)</label>
-        <div className="rating-stars">
+      <div style={{ marginBottom: '15px' }}>
+        <label style={{ display: 'block', marginBottom: '5px' }}>評価 (5段階):</label>
+        <div>
           {[1, 2, 3, 4, 5].map(star => (
             <span 
               key={star} 
               onClick={() => setRating(star)}
-              style={{ cursor: 'pointer', color: star <= rating ? 'gold' : 'grey', fontSize: '1.5em' }}
+              style={{ cursor: 'pointer', color: star <= rating ? 'gold' : 'lightgray', fontSize: '2em', marginRight: '5px' }}
             >
               ★
             </span>
@@ -119,37 +121,47 @@ function MemoryFormScreen({ tripId, eventName, existingMemory, onSaveMemory, onC
         </div>
       </div>
 
-      <div className="form-section">
-        <label htmlFor="mediaUpload">写真・動画を追加</label>
+      <div style={{ marginBottom: '15px' }}>
+        <label htmlFor="mediaUpload" style={{ display: 'block', marginBottom: '5px' }}>写真・動画を追加:</label>
         <input 
           type="file" 
           id="mediaUpload" 
           accept="image/*,video/*" 
-          onChange={handleMediaChange} 
+          onChange={handleFileChange} 
           multiple 
-          style={{display: 'block', marginBottom: '10px'}}
+          style={{ display: 'block', marginBottom: '10px' }}
         />
-        
-        {photoPreviews.length > 0 && <h4>写真プレビュー:</h4>}
-        <div className="media-preview-area">
-          {photoPreviews.map((previewUrl, index) => (
-            <div key={`photo-${index}`} className="media-thumbnail" style={{position: 'relative'}}>
-              <img src={previewUrl} alt={`写真プレビュー ${index + 1}`} style={{width: '100px', height: '100px', objectFit: 'cover'}}/>
-              <button onClick={() => removePhoto(index)} style={{position: 'absolute', top: 0, right: 0, background: 'rgba(0,0,0,0.5)', color: 'white', border: 'none', cursor: 'pointer'}}>×</button>
-            </div>
-          ))}
-        </div>
-
-        {videoNames.length > 0 && <h4 style={{marginTop: '15px'}}>動画ファイル:</h4>}
-        <div className="media-preview-area">
-          {videoNames.map((videoName, index) => (
-            <div key={`video-${index}`} className="media-thumbnail video-placeholder" style={{position: 'relative', width: '100px', height: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #ccc', background: '#f0f0f0', textAlign: 'center'}}>
-              <span>{videoName}</span>
-              <button onClick={() => removeVideo(index)} style={{position: 'absolute', top: 0, right: 0, background: 'rgba(0,0,0,0.5)', color: 'white', border: 'none', cursor: 'pointer'}}>×</button>
-            </div>
-          ))}
-        </div>
       </div>
+
+      {(currentMediaUrls.length > 0 || newMediaPreviews.length > 0) && (
+        <div style={{ marginBottom: '15px' }}>
+          <h4>アップロード済み・選択中のメディア:</h4>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+            {currentMediaUrls.map((url, index) => (
+              <div key={`current-${index}`} style={{ position: 'relative', border: '1px solid #ddd', padding: '5px' }}>
+                {url.match(/\.(jpeg|jpg|gif|png)$/i) ? (
+                  <img src={url} alt={`既存メディア ${index + 1}`} style={{ width: '100px', height: '100px', objectFit: 'cover' }}/>
+                ) : url.match(/\.(mp4|webm|ogg)$/i) ? (
+                  <video src={url} controls style={{ width: '100px', height: '100px' }} />
+                ) : (
+                  <a href={url} target="_blank" rel="noopener noreferrer">メディア {index + 1}</a>
+                )}
+                <button onClick={() => removeCurrentMedia(index)} style={{position: 'absolute', top: '-5px', right: '-5px', background: 'red', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', lineHeight: '20px', textAlign: 'center' }}>×</button>
+              </div>
+            ))}
+            {newMediaPreviews.map((preview, index) => (
+              <div key={`new-${index}`} style={{ position: 'relative', border: '1px solid #ddd', padding: '5px' }}>
+                {preview.type.startsWith('image/') ? (
+                  <img src={preview.url} alt={`新規プレビュー ${index + 1}`} style={{ width: '100px', height: '100px', objectFit: 'cover' }}/>
+                ) : (
+                  <div style={{width: '100px', height: '100px', background: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontSize: '0.8em', padding: '5px', boxSizing: 'border-box'}}>動画: {preview.name}</div>
+                )}
+                <button onClick={() => removeNewMedia(index)} style={{position: 'absolute', top: '-5px', right: '-5px', background: 'red', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', lineHeight: '20px', textAlign: 'center' }}>×</button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

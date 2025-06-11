@@ -53,7 +53,7 @@ function AppRouter({ appLogic }) {
     handleShowPlaceSearchGeneral, handleShowPlaceSearchForPlanForm, handleShowPlaceSearchForEvent,
     newHandlePlaceSelected, handleShowPlaceDetail, handleBackFromPlaceDetail,
     handleShowRouteOptions, handleRouteSelected,
-    handleShowMemoryForm, handleSaveMemory, handleShowMemoryView,
+    handleShowMemoryForm, handleSaveMemory, handleShowMemoryView, handleDeleteMemory, fetchMemoriesForTrip, // handleDeleteMemory, fetchMemoriesForTrip を追加
     handleShowPublicTripsSearch, handleSelectPublicTrip, handleCopyToMyPlans,
     handleShowPublishSettings, handleSavePublishSettings, handleCancelPublishSettings,
     handleShowFavoritePlaces, handleAddFavoritePlace, handleRemoveFavoritePlace,
@@ -61,7 +61,7 @@ function AppRouter({ appLogic }) {
     handleRequestAIForTrip, handleShowHotelRecommendations, handleRequestAICourse,
     handleShowBackendTest,
     selectedPlaceDetail, 
-    viewingMemoriesForTripId,
+    viewingMemoriesForTripId, editingMemoryForEvent, tripMemories, // editingMemoryForEvent, tripMemories を追加
     editingEventDetails,
     currentHotelForRecommendations, aiRecommendedCourses,
     placeSearchContext,
@@ -84,7 +84,13 @@ function AppRouter({ appLogic }) {
     case 'passwordReset':
       return <PasswordResetScreen onSendResetLink={handleSendPasswordResetLink} onNavigateToLogin={() => setCurrentScreen('login')} onConfirmCodeAndSetNewPassword={handleConfirmCodeAndSetNewPassword} />;
     case 'planForm':
-      return <PlanFormScreen currentPlan={editingPlan} onSave={handleSavePlan} onCancel={handleCancelPlanForm} onShowPlaceSearch={handleShowPlaceSearchForPlanForm} />;
+      return <PlanFormScreen 
+                currentPlan={editingPlan} 
+                onSave={handleSavePlan} 
+                onCancel={handleCancelPlanForm} 
+                onShowPlaceSearch={handleShowPlaceSearchForPlanForm} 
+                currentUser={currentUser} // currentUser を渡す
+             />;
     case 'tripDetail':
       return <TripDetailScreen 
                 trip={selectedTrip} 
@@ -92,7 +98,7 @@ function AppRouter({ appLogic }) {
                 onEditPlanBasics={handleShowPlanForm} 
                 onRequestAI={() => handleRequestAIForTrip(selectedTrip)} 
                 onShowRouteOptions={handleShowRouteOptions} 
-                onAddMemoryForEvent={(eventName, date) => handleShowMemoryForm(selectedTrip.id, eventName, date)} 
+                onShowMemoryForm={handleShowMemoryForm} // 修正: onAddMemoryForEvent -> onShowMemoryForm
                 onShowHotelRecommendations={(hotel) => handleShowHotelRecommendations(hotel)} 
                 onAddEventToDay={(date, scheduleId) => handleShowEventForm(selectedTrip.id, date, scheduleId)} 
                 onViewOverallMemories={handleShowMemoryView}
@@ -104,7 +110,7 @@ function AppRouter({ appLogic }) {
                 onShowHotelDetailModal={handleShowHotelDetailModal}
                 onAddSchedule={handleShowScheduleForm}
                 onDeleteTrip={handleDeleteTrip}
-                onEditEvent={(tripId, scheduleId, event) => handleShowEventForm(tripId, event.date, scheduleId, event)} // event.date を渡す
+                onEditEvent={(tripId, scheduleId, event) => handleShowEventForm(tripId, event.date, scheduleId, event)}
                 onDeleteEvent={handleDeleteEvent}
               />;
     case 'scheduleForm':
@@ -167,11 +173,23 @@ function AppRouter({ appLogic }) {
                 onCancel={handleCancelPublishSettings} 
               />;
     case 'memoryForm':
-      return <MemoryFormScreen tripId={editingMemoryForEvent?.tripId} eventName={editingMemoryForEvent?.eventName} existingMemory={editingMemoryForEvent?.existingMemory} onSaveMemory={handleSaveMemory} onCancel={() => setCurrentScreen(editingMemoryForEvent?.tripId ? 'memoryView' : 'tripDetail')} />;
+      if (!editingMemoryForEvent) return <LoadingFallback />; // editingMemoryForEvent がないとエラーになるため追加
+      return <MemoryFormScreen 
+                editingMemoryForEvent={editingMemoryForEvent} // 修正: editingMemoryForEvent を直接渡す
+                onSaveMemory={handleSaveMemory} 
+                onCancel={() => setCurrentScreen(editingMemoryForEvent?.tripId ? 'memoryView' : (selectedTrip ? 'tripDetail' : 'tripList'))} 
+             />;
     case 'memoryView':
-      if (!viewingMemoriesForTripId) return <LoadingFallback />;
-      const memoryTripData = trips.find(t => t.id === viewingMemoriesForTripId);
-      return <MemoryViewScreen tripId={viewingMemoriesForTripId} tripData={memoryTripData} onBack={() => setCurrentScreen(selectedTrip ? 'tripDetail' : 'tripList')} onEditOverallMemory={(tid) => handleShowMemoryForm(tid, null, null)} onEditEventMemory={(tid, date, eventName) => handleShowMemoryForm(tid, eventName, date)} />;
+      if (!viewingMemoriesForTripId || !selectedTrip) return <LoadingFallback />; // selectedTrip も確認
+      return <MemoryViewScreen 
+                tripId={viewingMemoriesForTripId} 
+                tripName={selectedTrip.name} // tripName を selectedTrip から渡す
+                tripMemories={tripMemories} // tripMemories を渡す
+                schedules={selectedTrip.schedules} // schedules を selectedTrip から渡す
+                onBack={() => setCurrentScreen(selectedTrip ? 'tripDetail' : 'tripList')} 
+                onShowMemoryForm={handleShowMemoryForm} // 修正: onEditOverallMemory, onEditEventMemory -> onShowMemoryForm
+                onDeleteMemory={handleDeleteMemory} // onDeleteMemory を渡す
+             />;
     case 'publicTripsSearch':
       return <PublicTripsSearchScreen onSelectPublicTrip={handleSelectPublicTrip} onCancel={() => setCurrentScreen('tripList')} />;
     case 'placeSearch':
@@ -200,8 +218,8 @@ function AppRouter({ appLogic }) {
                 tripId={editingEventDetails.tripId}
                 scheduleId={editingEventDetails.scheduleId}
                 date={editingEventDetails.date} 
-                existingEvent={editingEventDetails.event} // existingEvent を editingEventDetails.event に変更
-                onSaveEvent={handleSaveEvent} // handleSaveEvent を直接渡す (引数はEventFormScreen側で調整済み)
+                existingEvent={editingEventDetails.event} 
+                onSaveEvent={handleSaveEvent} 
                 onCancel={() => setCurrentScreen('tripDetail')} 
                 onShowPlaceSearch={handleShowPlaceSearchForEvent} 
                 onShowFavoritePicker={handleShowFavoritePickerForEvent} 
