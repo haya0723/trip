@@ -196,5 +196,24 @@ export const useMemories = (currentUser, setCurrentScreen, selectedTrip, setSele
     fetchMemoriesForTrip,
     handleShowMemoryView,
     handleDeleteMemory,
+    handleCancelMemoryForm, // 追加
   };
+
+  function handleCancelMemoryForm() {
+    const returnToTripId = editingMemoryForEvent?.tripId;
+    const cameFromEvent = !!editingMemoryForEvent?.eventId;
+
+    setEditingMemoryForEvent(null); // フォームの編集状態をクリア
+
+    if (returnToTripId) {
+      // イベントの思い出編集から、または旅行全体の思い出編集からキャンセルした場合
+      // memoryView に戻るのが自然
+      handleShowMemoryView(returnToTripId); // これにより viewingMemoriesForTripId と selectedTrip が設定される
+    } else if (selectedTrip) {
+      // 何らかの理由で tripId が取れないが、selectedTrip がある場合 (通常はあまりないケース)
+      if (setCurrentScreen) setCurrentScreen('tripDetail');
+    } else {
+      if (setCurrentScreen) setCurrentScreen('tripList');
+    }
+  }
 };

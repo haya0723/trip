@@ -53,7 +53,7 @@ function AppRouter({ appLogic }) {
     handleShowPlaceSearchGeneral, handleShowPlaceSearchForPlanForm, handleShowPlaceSearchForEvent,
     newHandlePlaceSelected, handleShowPlaceDetail, handleBackFromPlaceDetail,
     handleShowRouteOptions, handleRouteSelected,
-    handleShowMemoryForm, handleSaveMemory, handleShowMemoryView, handleDeleteMemory, fetchMemoriesForTrip, // handleDeleteMemory, fetchMemoriesForTrip を追加
+    handleShowMemoryForm, handleSaveMemory, handleShowMemoryView, handleDeleteMemory, fetchMemoriesForTrip, handleCancelMemoryForm, // handleCancelMemoryForm を追加
     handleShowPublicTripsSearch, handleSelectPublicTrip, handleCopyToMyPlans,
     handleShowPublishSettings, handleSavePublishSettings, handleCancelPublishSettings,
     handleShowFavoritePlaces, handleAddFavoritePlace, handleRemoveFavoritePlace,
@@ -175,9 +175,9 @@ function AppRouter({ appLogic }) {
     case 'memoryForm':
       if (!editingMemoryForEvent) return <LoadingFallback />; // editingMemoryForEvent がないとエラーになるため追加
       return <MemoryFormScreen 
-                editingMemoryForEvent={editingMemoryForEvent} // 修正: editingMemoryForEvent を直接渡す
+                editingMemoryForEvent={editingMemoryForEvent} 
                 onSaveMemory={handleSaveMemory} 
-                onCancel={() => setCurrentScreen(editingMemoryForEvent?.tripId ? 'memoryView' : (selectedTrip ? 'tripDetail' : 'tripList'))} 
+                onCancel={handleCancelMemoryForm} // 修正: 新しいキャンセルハンドラを使用
              />;
     case 'memoryView':
       if (!viewingMemoriesForTripId || !selectedTrip) return <LoadingFallback />; // selectedTrip も確認
