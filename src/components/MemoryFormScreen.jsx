@@ -89,7 +89,15 @@ function MemoryFormScreen({ editingMemoryForEvent, onSaveMemory, onCancel }) {
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h2>{getHeaderTitle()}</h2>
         <div>
-          <button onClick={onCancel} style={{ marginRight: '10px', backgroundColor: 'red', color: 'white' }}>キャンセル</button> {/* 色を変更 */}
+          <button 
+            onClick={() => {
+              console.log('[MemoryFormScreen] Cancel button clicked. Calling onCancel...');
+              onCancel();
+            }} 
+            style={{ marginRight: '10px', backgroundColor: 'red', color: 'white' }}
+          >
+            キャンセル
+          </button> {/* 色を変更 */}
           <button onClick={handleSave} style={{ fontWeight: 'bold' }}>保存</button>
         </div>
       </header>
