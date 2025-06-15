@@ -200,19 +200,24 @@ export const useMemories = (currentUser, setCurrentScreen, selectedTrip, setSele
   };
 
   function handleCancelMemoryForm() {
+    console.log('[useMemories] handleCancelMemoryForm called. editingMemoryForEvent:', JSON.stringify(editingMemoryForEvent, null, 2));
     const returnToTripId = editingMemoryForEvent?.tripId;
-    const cameFromEvent = !!editingMemoryForEvent?.eventId;
+    // const cameFromEvent = !!editingMemoryForEvent?.eventId; // cameFromEvent は現在使用されていない
 
     setEditingMemoryForEvent(null); // フォームの編集状態をクリア
+    console.log('[useMemories] editingMemoryForEvent set to null.');
 
     if (returnToTripId) {
+      console.log('[useMemories] Attempting to return to memoryView for tripId:', returnToTripId);
       // イベントの思い出編集から、または旅行全体の思い出編集からキャンセルした場合
       // memoryView に戻るのが自然
       handleShowMemoryView(returnToTripId); // これにより viewingMemoriesForTripId と selectedTrip が設定される
     } else if (selectedTrip) {
+      console.log('[useMemories] No returnToTripId, but selectedTrip exists. Navigating to tripDetail. selectedTrip:', JSON.stringify(selectedTrip, null, 2));
       // 何らかの理由で tripId が取れないが、selectedTrip がある場合 (通常はあまりないケース)
       if (setCurrentScreen) setCurrentScreen('tripDetail');
     } else {
+      console.log('[useMemories] No returnToTripId and no selectedTrip. Navigating to tripList.');
       if (setCurrentScreen) setCurrentScreen('tripList');
     }
   }
