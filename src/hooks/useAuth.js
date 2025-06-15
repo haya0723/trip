@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react'; // useCallback, useRef をインポート
 import axios from 'axios';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+const AUTO_LOGOUT_TIME = 30 * 60 * 1000; // 30分 (ミリ秒)
 
 export const useAuth = (setCurrentScreenExt) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [userProfile, setUserProfile] = useState({ nickname: '', bio: '', avatarUrl: '', favoritePlaces: [] });
+  const logoutTimer = useRef(null);
 
   const fetchUserProfile = async (userId, token) => {
     if (!token) return;
@@ -77,7 +79,37 @@ export const useAuth = (setCurrentScreenExt) => {
     localStorage.removeItem('user');
     setCurrentUser(null);
     if (setCurrentScreenExt) setCurrentScreenExt('login');
+    clearTimeout(logoutTimer.current); // ログアウトタイマーもクリア
   };
+
+  const resetLogoutTimer = useCallback(() => {
+    clearTimeout(logoutTimer.current);
+    if (currentUser) { // ログイン中のみタイマーを設定
+      logoutTimer.current = setTimeout(() => {
+        alert('セッションタイムアウトにより自動的にログアウトしました。');
+        handleLogout();
+      }, AUTO_LOGOUT_TIME);
+    }
+  }, [currentUser, handleLogout]); // handleLogout を依存配列に追加
+
+  useEffect(() => {
+    if (currentUser) {
+      resetLogoutTimer(); // ログイン状態が変化したらタイマーをリセット/開始
+      window.addEventListener('mousemove', resetLogoutTimer);
+      window.addEventListener('keydown', resetLogoutTimer);
+      // 他のアクティビティイベントも必要に応じて追加 (例: 'scroll', 'click')
+    } else {
+      clearTimeout(logoutTimer.current); // ログアウトしたらタイマーをクリア
+      window.removeEventListener('mousemove', resetLogoutTimer);
+      window.removeEventListener('keydown', resetLogoutTimer);
+    }
+
+    return () => {
+      clearTimeout(logoutTimer.current);
+      window.removeEventListener('mousemove', resetLogoutTimer);
+      window.removeEventListener('keydown', resetLogoutTimer);
+    };
+  }, [currentUser, resetLogoutTimer]);
   
   const handleSendPasswordResetLink = async (email) => { alert('パスワードリセット機能は現在開発中です。'); };
   const handleConfirmCodeAndSetNewPassword = async (code, newPassword) => { alert('パスワード再設定機能は現在開発中です。');};
